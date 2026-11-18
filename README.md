@@ -67,4 +67,21 @@ vercel --prod   # Deploy to production
 
 1. Push this repository to GitHub.
 2. Import the repository at [vercel.com/new](https://vercel.com/new).
-3. Leave all settings at their defaults (`vercel.json` automatically publishes `site/`).
+3. Leave all settings at their defaults (`vercel.json` automatically publishes `site/` and deploys `api/waitlist.js` as a Serverless Function).
+
+---
+
+## Capturing Waitlist Signups (`POST /api/waitlist`)
+
+Every waitlist signup captures the user's email, current email provider (`gmail`, `outlook`, `icloud`, `other`), custom-domain ownership, and preferred model (`stake-dot`, `fiat-sub`, `b2b-team`, `run-node`).
+
+Out of the box, signups emit structured `[ZEROMX_WAITLIST]` JSON entries to **Vercel Logs**. For permanent storage + instant alerts, configure **any** of the following optional Environment Variables in Vercel:
+
+1. **Vercel Marketplace Upstash Redis (Recommended, 1-click free tier):**
+   - In your Vercel project dashboard, go to **Storage -> Create Database -> Upstash Redis** and link it to the project (`KV_REST_API_URL` + `KV_REST_API_TOKEN` or `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` are injected automatically). Signups are stored deduplicated under `zeromx:waitlist:entries`.
+2. **Slack / Discord / Telegram / n8n Webhook:**
+   - Set `WAITLIST_WEBHOOK_URL` to receive real-time notifications on every signup.
+3. **Private GitHub Repo Issues:**
+   - Set `GITHUB_TOKEN` (fine-grained token with `Issues: Read & Write`) + `WAITLIST_GITHUB_REPO` (e.g. `youruser/zeromx-waitlist` — enforced private-only so emails never leak publicly).
+4. **Email Notification via Resend:**
+   - Set `RESEND_API_KEY` + `WAITLIST_NOTIFY_EMAIL`.

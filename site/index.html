@@ -28,7 +28,7 @@
           <button class="lang-btn active" data-lang="en">EN</button>
           <button class="lang-btn" data-lang="pt">PT</button>
         </div>
-        <a href="#simulador" class="btn btn-primary" data-i18n="nav_cta">Try Live Demo</a>
+        <button type="button" class="btn btn-primary" id="navWaitlistBtn" data-i18n="nav_cta">Join Waitlist</button>
       </div>
     </div>
   </header>
@@ -50,8 +50,8 @@
           Google and Microsoft become dumb, free ciphertext storage — while you read, search, reply, and run local AI/MCP agents without juggling "yet another email app".
         </p>
         <div class="hero-actions">
-          <a href="#simulador" class="btn btn-primary" data-i18n="hero_btn_primary">See What Big Tech Sees vs. What You See</a>
-          <a href="#provas-jam" class="btn btn-secondary" data-i18n="hero_btn_secondary">Who Runs SMTP &amp; How Is Privacy Proven?</a>
+          <button type="button" class="btn btn-primary" id="heroWaitlistBtn" data-i18n="hero_btn_waitlist">🚀 Join Early Access Waitlist</button>
+          <a href="#simulador" class="btn btn-secondary" data-i18n="hero_btn_primary">Try Live Inbox Simulator</a>
         </div>
 
         <div class="provider-strip">
@@ -244,6 +244,27 @@
         </div>
 
         <div class="gaps-grid" id="gapsGrid"></div>
+      </div>
+    </section>
+
+    <!-- Early Access Waitlist Section -->
+    <section id="waitlist" class="waitlist-section">
+      <div class="container">
+        <div class="waitlist-banner">
+          <div class="waitlist-copy">
+            <span class="section-tag" data-i18n="wl_tag">06 // Early Access &amp; Testnet</span>
+            <h2 data-i18n="wl_title">Want sovereign email inside your current inbox?</h2>
+            <p data-i18n="wl_desc">
+              Join the early access cohort as we roll out the browser extension, Mobile Passkey Companion, and Polkadot JAM Blind MX testnet.
+            </p>
+            <ul class="waitlist-perks">
+              <li data-i18n="wl_perk1">✅ Priority invite for Gmail &amp; Outlook custom-domain beta</li>
+              <li data-i18n="wl_perk2">✅ Early Stake-to-Use ($0/mo via DOT) &amp; TEE Node Operator slots</li>
+              <li data-i18n="wl_perk3">🔒 Zero spam — we will only email you when your slot opens</li>
+            </ul>
+          </div>
+          <div class="waitlist-form-box" id="inlineWaitlistMount"></div>
+        </div>
       </div>
     </section>
   </main>

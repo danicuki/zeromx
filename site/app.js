@@ -6,12 +6,13 @@ const TRANSLATIONS = {
     nav_proofs: 'Operators & Proofs',
     nav_onboard: 'Custom Domain',
     nav_gaps: 'UX Gap Radar',
-    nav_cta: 'Try Live Demo',
+    nav_cta: 'Join Waitlist',
 
     hero_eyebrow: 'True Sovereignty + Zero-Friction UX • Any Email Provider',
     hero_title: 'Keep using <span class="gradient-text">Gmail or Outlook</span>.<br />Strip away their power to read your life.',
     hero_sub: 'Point your custom domain (<code>@yourdomain.com</code>) to a decentralized network of blind MX nodes coordinated by <strong>Polkadot JAM</strong>. Google and Microsoft become dumb, free ciphertext storage — while you read, search, reply, and run local AI/MCP agents without juggling "yet another email app".',
-    hero_btn_primary: 'See What Big Tech Sees vs. What You See',
+    hero_btn_waitlist: '🚀 Join Early Access Waitlist',
+    hero_btn_primary: 'Try Live Inbox Simulator',
     hero_btn_secondary: 'Who Runs SMTP & How Is Privacy Proven?',
     hero_providers_label: 'Works with any destination inbox:',
     hero_provider_imap: '⚡ Fastmail / Any IMAP',
@@ -428,7 +429,49 @@ const TRANSLATIONS = {
         desc: 'Once the MX node encrypts the body, Gmail/Outlook can no longer inspect content keywords to filter spam or phishing.',
         sol: '<strong>Product Fix:</strong> The attested TEE runs strict SPF/DKIM/DMARC + Rspamd scoring in RAM <em>before</em> encrypting, tagging spam headers so Gmail routes junk straight to Spam.'
       }
-    ]
+    ],
+
+    wl_tag: '06 // Early Access & Testnet',
+    wl_title: 'Want sovereign email inside your current inbox?',
+    wl_desc: 'Join the early access cohort as we roll out the browser extension, Mobile Passkey Companion, and Polkadot JAM Blind MX testnet.',
+    wl_perk1: '✅ Priority invite for Gmail & Outlook custom-domain beta',
+    wl_perk2: '✅ Early Stake-to-Use ($0/mo via DOT) & TEE Node Operator slots',
+    wl_perk3: '🔒 Zero spam — we will only email you when your slot opens',
+
+    waitlistForm: {
+      modalTag: 'EARLY ACCESS COHORT • POLKADOT JAM TESTNET',
+      modalTitle: 'Join the ZeroMX Waitlist',
+      modalSub: 'Reserve early access for your custom domain or register interest in running an attested Blind MX node.',
+      emailPlaceholder: 'you@yourdomain.com',
+      submitBtn: 'Join Waitlist',
+      submittingBtn: 'Joining...',
+      providerLabel: 'Current Inbox Provider',
+      providers: [
+        { id: 'gmail', label: 'Gmail / Workspace' },
+        { id: 'outlook', label: 'Outlook / M365' },
+        { id: 'icloud', label: 'Apple / iCloud' },
+        { id: 'other', label: 'Proton / Other' }
+      ],
+      domainLabel: 'Custom Domain',
+      domains: [
+        { id: 'yes', label: 'I own a domain' },
+        { id: 'not-yet', label: 'Need a domain' }
+      ],
+      planLabel: 'Most Interested In',
+      plans: [
+        { id: 'stake-dot', label: '💎 Stake DOT ($0/mo)' },
+        { id: 'fiat-sub', label: '💳 $2/mo Plan' },
+        { id: 'b2b-team', label: '🏢 B2B Team Gateway' },
+        { id: 'run-node', label: '🖥️ Run an SMTP TEE Node' }
+      ],
+      privacyNote: '🔒 No spam, no trackers. Unsubscribe anytime.',
+      invalidEmail: 'Please enter a valid email address.',
+      genericError: 'Could not submit right now. Please try again.',
+      successTitle: 'You\'re on the Early Access list!',
+      successBody: (email) => `We reserved a spot for <strong>${email}</strong>. Want to move up the queue? Share ZeroMX with a privacy-minded friend:`,
+      shareBtn: '🔗 Copy Link to Share',
+      copiedBtn: '✅ Link Copied!'
+    }
   },
 
   pt: {
@@ -438,12 +481,13 @@ const TRANSLATIONS = {
     nav_proofs: 'Operadores & Provas',
     nav_onboard: 'Domínio Próprio',
     nav_gaps: 'Radar de Gaps',
-    nav_cta: 'Testar na Prática',
+    nav_cta: 'Entrar na Waitlist',
 
     hero_eyebrow: 'Soberania Real + Conveniência Zero-Fricção • Qualquer Provedor de E-mail',
     hero_title: 'Continue usando <span class="gradient-text">Gmail ou Outlook</span>.<br />Tire deles o poder de ler sua vida.',
     hero_sub: 'Você aponta o seu domínio próprio (<code>@voce.com</code>) para uma rede descentralizada de nós cegos coordenada pelo <strong>Polkadot JAM</strong>. Google e Microsoft viram apenas HDs gratuitos de texto cifrado — enquanto você lê, pesquisa, responde e usa IA/MCP localmente sem criar "mais um app".',
-    hero_btn_primary: 'Ver o que a Big Tech vê vs. Você',
+    hero_btn_waitlist: '🚀 Entrar na Lista de Espera',
+    hero_btn_primary: 'Testar Simulador ao Vivo',
     hero_btn_secondary: 'Quem roda o SMTP e como provar sigilo?',
     hero_providers_label: 'Funciona com qualquer caixa de destino:',
     hero_provider_imap: '⚡ Fastmail / Qualquer IMAP',
@@ -860,7 +904,49 @@ const TRANSLATIONS = {
         desc: 'Depois de cifrado, o filtro de spam do Gmail/Outlook não consegue mais analisar palavras de phishing.',
         sol: '<strong>Solução de Produto:</strong> O enclave TEE roda SPF/DKIM/DMARC + Rspamd em RAM <em>antes</em> de cifrar, marcando spam no cabeçalho externo.'
       }
-    ]
+    ],
+
+    wl_tag: '06 // Acesso Antecipado & Testnet',
+    wl_title: 'Quer privacidade soberana dentro da sua caixa atual?',
+    wl_desc: 'Entre na lista de acesso antecipado para testar a extensão, o Companion Mobile via Passkey e a testnet Blind MX no Polkadot JAM.',
+    wl_perk1: '✅ Convite prioritário para o beta em Gmail e Outlook com domínio próprio',
+    wl_perk2: '✅ Vagas iniciais de Stake-to-Use (R$ 0/mês via DOT) e Operadores de Nó TEE',
+    wl_perk3: '🔒 Zero spam — só avisaremos quando seu acesso estiver liberado',
+
+    waitlistForm: {
+      modalTag: 'ACESSO ANTECIPADO • POLKADOT JAM TESTNET',
+      modalTitle: 'Entrar na Lista de Espera do ZeroMX',
+      modalSub: 'Garanta acesso antecipado para seu domínio próprio ou registre interesse em operar um nó Blind MX.',
+      emailPlaceholder: 'voce@seudominio.com',
+      submitBtn: 'Entrar na Lista',
+      submittingBtn: 'Enviando...',
+      providerLabel: 'Seu Provedor Atual',
+      providers: [
+        { id: 'gmail', label: 'Gmail / Workspace' },
+        { id: 'outlook', label: 'Outlook / M365' },
+        { id: 'icloud', label: 'Apple / iCloud' },
+        { id: 'other', label: 'Proton / Outro' }
+      ],
+      domainLabel: 'Domínio Próprio',
+      domains: [
+        { id: 'yes', label: 'Já tenho domínio' },
+        { id: 'not-yet', label: 'Ainda não tenho' }
+      ],
+      planLabel: 'Maior Interesse',
+      plans: [
+        { id: 'stake-dot', label: '💎 Stake DOT (R$ 0/mês)' },
+        { id: 'fiat-sub', label: '💳 Plano US$ 2/mês' },
+        { id: 'b2b-team', label: '🏢 Gateway B2B / Empresa' },
+        { id: 'run-node', label: '🖥️ Operar Nó SMTP TEE' }
+      ],
+      privacyNote: '🔒 Zero spam, zero rastreadores.',
+      invalidEmail: 'Digite um endereço de e-mail válido.',
+      genericError: 'Não foi possível enviar agora. Tente novamente.',
+      successTitle: 'Você está na lista de acesso antecipado!',
+      successBody: (email) => `Reservamos sua vaga para <strong>${email}</strong>. Quer compartilhar a ideia com alguém que se importa com privacidade?`,
+      shareBtn: '🔗 Copiar Link para Compartilhar',
+      copiedBtn: '✅ Link Copiado!'
+    }
   }
 };
 
@@ -872,7 +958,14 @@ const state = {
   searchQuery: '',
   activeFlow: 'inbound',
   activeStepIndex: 0,
-  customSentByLang: { en: [], pt: [] }
+  customSentByLang: { en: [], pt: [] },
+  waitlist: {
+    draftEmail: '',
+    submittedEmail: '',
+    provider: 'gmail',
+    ownsDomain: 'yes',
+    planInterest: 'stake-dot'
+  }
 };
 
 function t() {
@@ -1317,6 +1410,199 @@ function closeModal() {
   document.getElementById('modalBackdrop').classList.remove('open');
 }
 
+function mountWaitlistWidget(container) {
+  if (!container) return;
+  const wf = t().waitlistForm;
+
+  if (state.waitlist.submittedEmail) {
+    container.innerHTML = `
+      <div class="wl-success-box">
+        <div style="font-size: 2rem;">🎉</div>
+        <h3>${escapeHtml(wf.successTitle)}</h3>
+        <p>${wf.successBody(escapeHtml(state.waitlist.submittedEmail))}</p>
+        <button type="button" class="btn btn-secondary wl-share-btn">${escapeHtml(wf.shareBtn)}</button>
+      </div>
+    `;
+    const shareBtn = container.querySelector('.wl-share-btn');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.origin + window.location.pathname);
+          shareBtn.textContent = wf.copiedBtn;
+        } catch (_) {
+          shareBtn.textContent = wf.copiedBtn;
+        }
+      });
+    }
+    return;
+  }
+
+  const renderChips = (items, selectedId, attrName) =>
+    items
+      .map(
+        (item) => `
+        <button
+          type="button"
+          class="wl-chip ${item.id === selectedId ? 'selected' : ''}"
+          data-${attrName}="${escapeHtml(item.id)}"
+        >${escapeHtml(item.label)}</button>
+      `
+      )
+      .join('');
+
+  container.innerHTML = `
+    <form class="wl-form" novalidate>
+      <input type="text" name="website_url" class="hp-hidden" tabindex="-1" autocomplete="off" />
+      <div class="wl-input-row">
+        <input
+          type="email"
+          name="email"
+          class="wl-email-input"
+          value="${escapeHtml(state.waitlist.draftEmail)}"
+          placeholder="${escapeHtml(wf.emailPlaceholder)}"
+          required
+        />
+        <button type="submit" class="btn btn-primary wl-submit-btn">${escapeHtml(wf.submitBtn)}</button>
+      </div>
+
+      <div class="wl-chip-group">
+        <span class="wl-chip-label">${escapeHtml(wf.providerLabel)}</span>
+        <div class="wl-chips">${renderChips(wf.providers, state.waitlist.provider, 'wl-provider')}</div>
+      </div>
+
+      <div class="wl-chip-group">
+        <span class="wl-chip-label">${escapeHtml(wf.domainLabel)}</span>
+        <div class="wl-chips">${renderChips(wf.domains, state.waitlist.ownsDomain, 'wl-domain')}</div>
+      </div>
+
+      <div class="wl-chip-group">
+        <span class="wl-chip-label">${escapeHtml(wf.planLabel)}</span>
+        <div class="wl-chips">${renderChips(wf.plans, state.waitlist.planInterest, 'wl-plan')}</div>
+      </div>
+
+      <div class="wl-error" style="display: none;"></div>
+      <div class="wl-note">${escapeHtml(wf.privacyNote)}</div>
+    </form>
+  `;
+
+  container.querySelectorAll('[data-wl-provider]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.waitlist.provider = btn.getAttribute('data-wl-provider');
+      mountWaitlistWidget(container);
+    });
+  });
+
+  container.querySelectorAll('[data-wl-domain]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.waitlist.ownsDomain = btn.getAttribute('data-wl-domain');
+      mountWaitlistWidget(container);
+    });
+  });
+
+  container.querySelectorAll('[data-wl-plan]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.waitlist.planInterest = btn.getAttribute('data-wl-plan');
+      mountWaitlistWidget(container);
+    });
+  });
+
+  const form = container.querySelector('.wl-form');
+  const emailInput = container.querySelector('input[name="email"]');
+  const hpInput = container.querySelector('input[name="website_url"]');
+  const submitBtn = container.querySelector('.wl-submit-btn');
+  const errorEl = container.querySelector('.wl-error');
+
+  emailInput.addEventListener('input', (e) => {
+    state.waitlist.draftEmail = e.target.value;
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl.style.display = 'none';
+
+    const email = emailInput.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      errorEl.textContent = wf.invalidEmail;
+      errorEl.style.display = 'block';
+      emailInput.focus();
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = wf.submittingBtn;
+
+    const payload = {
+      email,
+      website_url: hpInput.value,
+      provider: state.waitlist.provider,
+      ownsDomain: state.waitlist.ownsDomain,
+      planInterest: state.waitlist.planInterest,
+      lang: state.lang,
+      referrer: document.referrer || window.location.href
+    };
+
+    try {
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok && res.status !== 404 && res.status !== 405 && res.status !== 501) {
+        throw new Error('API rejected');
+      }
+
+      // If running on a local static server (404/405/501), store locally for preview convenience
+      if (!res.ok) {
+        const localEntries = JSON.parse(localStorage.getItem('zeromx_waitlist_preview') || '[]');
+        localEntries.push(payload);
+        localStorage.setItem('zeromx_waitlist_preview', JSON.stringify(localEntries));
+      }
+
+      state.waitlist.submittedEmail = email;
+      renderInlineWaitlist();
+      const modalMount = document.getElementById('modalWaitlistMount');
+      if (modalMount) mountWaitlistWidget(modalMount);
+    } catch (_) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = wf.submitBtn;
+      errorEl.textContent = wf.genericError;
+      errorEl.style.display = 'block';
+    }
+  });
+}
+
+function renderInlineWaitlist() {
+  const inlineMount = document.getElementById('inlineWaitlistMount');
+  if (inlineMount) mountWaitlistWidget(inlineMount);
+}
+
+function openWaitlistModal() {
+  const wf = t().waitlistForm;
+  const backdrop = document.getElementById('modalBackdrop');
+  const content = document.getElementById('modalContent');
+
+  content.innerHTML = `
+    <div class="modal-top">
+      <div>
+        <span style="font-family: var(--font-mono); font-size: 0.74rem; color: var(--accent-emerald);">
+          ${escapeHtml(wf.modalTag)}
+        </span>
+        <h3 style="margin-top: 4px;">${escapeHtml(wf.modalTitle)}</h3>
+        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">${escapeHtml(wf.modalSub)}</p>
+      </div>
+      <button class="modal-close" id="closeModalBtn">&times;</button>
+    </div>
+    <div id="modalWaitlistMount"></div>
+  `;
+
+  backdrop.classList.add('open');
+  document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+  mountWaitlistWidget(document.getElementById('modalWaitlistMount'));
+  const modalEmail = content.querySelector('input[name="email"]');
+  if (modalEmail) modalEmail.focus();
+}
+
 function setView(view) {
   state.view = view;
   document.querySelectorAll('#viewToggle .seg-btn').forEach((btn) => {
@@ -1334,6 +1620,7 @@ function setLang(lang) {
   applyStaticTranslations();
   renderSimulator();
   renderArchitecture();
+  renderInlineWaitlist();
 }
 
 function escapeHtml(str) {
@@ -1372,9 +1659,11 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSimulator();
   });
 
-  // Compose & Mobile buttons
+  // Compose, Mobile & Waitlist buttons
   document.getElementById('openComposeBtn').addEventListener('click', () => openComposeModal(null));
   document.getElementById('mobilePreviewBtn').addEventListener('click', openMobileGapModal);
+  document.getElementById('navWaitlistBtn').addEventListener('click', openWaitlistModal);
+  document.getElementById('heroWaitlistBtn').addEventListener('click', openWaitlistModal);
 
   // Close modal on backdrop click
   document.getElementById('modalBackdrop').addEventListener('click', (e) => {

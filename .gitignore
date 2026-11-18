@@ -26,3 +26,4 @@ build/
 .env
 .env.*
 .vercel/
+.local-waitlist.jsonl
