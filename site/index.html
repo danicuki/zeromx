@@ -3,283 +3,412 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZeroMX — Sovereign Email Inside Gmail or Outlook (Powered by Polkadot JAM)</title>
+  <title>ZeroMX — Keep your inbox. Make it blind.</title>
+  <meta name="description" content="ZeroMX seals the mail sent to your domain before it reaches Gmail. Your provider stores ciphertext it cannot read. You keep reading and replying in the same tab." />
+  <meta name="theme-color" content="#f3efe6" />
+  <meta name="color-scheme" content="light" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="ZeroMX" />
+  <meta property="og:title" content="ZeroMX — Keep your inbox. Make it blind." />
+  <meta property="og:description" content="Mail sent to your domain is sealed before it reaches Gmail. Google stores ciphertext. You keep reading and replying in the same tab." />
+  <meta property="og:image" content="/og.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ZeroMX — Keep your inbox. Make it blind." />
+  <meta name="twitter:description" content="Mail sent to your domain is sealed before it reaches Gmail. Google stores ciphertext. You keep reading and replying in the same tab." />
+  <meta name="twitter:image" content="/og.png" />
+
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preload" href="fonts/instrument-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="fonts/instrument-serif-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
 
-  <!-- Navbar -->
   <header class="navbar">
     <div class="container nav-inner">
-      <a href="#" class="brand">
-        <span class="brand-mark">Z</span>
+      <a href="#top" class="brand" aria-label="ZeroMX">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="16" cy="16" r="16" fill="currentColor" />
+          <circle cx="16" cy="16" r="7" fill="none" stroke="#f3efe6" stroke-width="2.4" />
+          <path d="M10 22L22 10" stroke="#f3efe6" stroke-width="2.4" stroke-linecap="round" />
+        </svg>
         <span>ZeroMX</span>
-        <span class="brand-badge">Polkadot JAM</span>
       </a>
-      <nav class="nav-links">
-        <a href="#simulador" data-i18n="nav_sim">Inbox Simulator</a>
-        <a href="#arquitetura" data-i18n="nav_arch">How It Works</a>
-        <a href="#provas-jam" data-i18n="nav_proofs">Operators &amp; Proofs</a>
-        <a href="#onboarding" data-i18n="nav_onboard">Custom Domain</a>
-        <a href="#gaps" data-i18n="nav_gaps">UX Gap Radar</a>
+      <nav class="nav-links" aria-label="Sections">
+        <a href="#how" data-i18n="nav_how">How it works</a>
+        <a href="#demo" data-i18n="nav_demo">Demo</a>
+        <a href="#trust" data-i18n="nav_trust">Trust</a>
+        <a href="#investors" data-i18n="nav_investors">Investors</a>
+        <a href="#developers" data-i18n="nav_developers">Developers</a>
       </nav>
       <div class="nav-right">
-        <div class="lang-switch" id="langSwitch" aria-label="Language selector">
-          <button class="lang-btn active" data-lang="en">EN</button>
-          <button class="lang-btn" data-lang="pt">PT</button>
+        <div class="lang-switch" id="langSwitch" role="group" aria-label="Language">
+          <button type="button" class="lang-btn active" data-lang="en" aria-pressed="true">EN</button>
+          <button type="button" class="lang-btn" data-lang="pt" aria-pressed="false">PT</button>
         </div>
-        <button type="button" class="btn btn-primary" id="navWaitlistBtn" data-i18n="nav_cta">Join Waitlist</button>
+        <button type="button" class="btn btn-primary btn-sm" id="navWaitlistBtn" data-i18n="nav_cta">Join waitlist</button>
       </div>
     </div>
   </header>
 
-  <!-- Hero -->
-  <main>
-    <section class="hero" style="border-top: none;">
+  <main id="main">
+    <!-- Hero -->
+    <section class="hero" id="top">
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <p class="chip">
+            <span class="dot"></span>
+            <span data-i18n="hero_chip">Design stage. Alpha invites go to the waitlist first.</span>
+          </p>
+          <h1 data-i18n-html="hero_title">Keep your inbox.<br /><em>Make it blind.</em></h1>
+          <p class="hero-sub" data-i18n="hero_sub">
+            ZeroMX seals the mail sent to your domain before it reaches Gmail. Google stores ciphertext it can’t read, search or scan. You keep reading and replying in the same tab.
+          </p>
+          <div class="hero-actions">
+            <button type="button" class="btn btn-primary btn-lg" id="heroWaitlistBtn" data-i18n="hero_btn_waitlist">Join the waitlist</button>
+            <a href="#demo" class="btn btn-ghost btn-lg" data-i18n="hero_btn_primary">Try the demo</a>
+          </div>
+          <ul class="hero-facts">
+            <li data-i18n-html="hero_fact1"><strong>First:</strong> Gmail on desktop Chrome</li>
+            <li data-i18n-html="hero_fact2"><strong>Next:</strong> Outlook, iCloud, Fastmail</li>
+            <li data-i18n-html="hero_fact3"><strong>On your phone:</strong> the ZeroMX app</li>
+          </ul>
+        </div>
+
+        <div class="lens-wrap">
+          <div class="lens" id="lens"></div>
+          <svg class="postmark" viewBox="0 0 200 200" aria-hidden="true">
+            <defs><path id="pmArc" d="M100,100 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0" /></defs>
+            <circle cx="100" cy="100" r="95" fill="none" stroke="currentColor" stroke-width="3" />
+            <circle cx="100" cy="100" r="56" fill="none" stroke="currentColor" stroke-width="1.6" />
+            <text font-size="15" fill="currentColor"><textPath href="#pmArc" textLength="456" lengthAdjust="spacing">SEALED BEFORE STORAGE • ZEROMX POST •</textPath></text>
+            <circle cx="100" cy="100" r="22" fill="none" stroke="currentColor" stroke-width="5" />
+            <path d="M82 118L118 82" stroke="currentColor" stroke-width="5" stroke-linecap="round" />
+            <path d="M8 78c14-7 28 7 42 0M8 92c14-7 28 7 42 0M8 106c14-7 28 7 42 0M150 78c14-7 28 7 42 0M150 92c14-7 28 7 42 0M150 106c14-7 28 7 42 0" fill="none" stroke="currentColor" stroke-width="2" opacity="0" />
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <div class="airmail" aria-hidden="true"></div>
+
+    <!-- Manifesto -->
+    <section class="manifesto">
       <div class="container">
-        <div class="eyebrow">
-          <span class="dot"></span>
-          <span data-i18n="hero_eyebrow">True Sovereignty + Zero-Friction UX • Any Email Provider</span>
-        </div>
-        <h1 data-i18n-html="hero_title">
-          Keep using <span class="gradient-text">Gmail or Outlook</span>.<br />
-          Strip away their power to read your life.
-        </h1>
-        <p class="hero-sub" data-i18n-html="hero_sub">
-          Point your custom domain (<code>@yourdomain.com</code>) to a decentralized network of blind MX nodes coordinated by <strong>Polkadot JAM</strong>.
-          Google and Microsoft become dumb, free ciphertext storage — while you read, search, reply, and run local AI/MCP agents without juggling "yet another email app".
+        <p class="manifesto-text" data-i18n-html="manifesto_html">
+          Your inbox knows your bank, your doctor, your lawyer and your landlord. Today your email provider can read every word. With ZeroMX it reads <span class="redact">nothing at all</span>.
         </p>
-        <div class="hero-actions">
-          <button type="button" class="btn btn-primary" id="heroWaitlistBtn" data-i18n="hero_btn_waitlist">🚀 Join Early Access Waitlist</button>
-          <a href="#simulador" class="btn btn-secondary" data-i18n="hero_btn_primary">Try Live Inbox Simulator</a>
-        </div>
+      </div>
+    </section>
 
-        <div class="provider-strip">
-          <span data-i18n="hero_providers_label">Works with any destination inbox:</span>
-          <span class="provider-pill">📧 Gmail / Google Workspace</span>
-          <span class="provider-pill">📨 Outlook / Microsoft 365</span>
-          <span class="provider-pill">🍏 iCloud Mail</span>
-          <span class="provider-pill" data-i18n="hero_provider_imap">⚡ Fastmail / Any IMAP</span>
+    <!-- How it works -->
+    <section id="how">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" data-i18n="how_tag">01 — The idea</span>
+          <h2 data-i18n="how_title">Three steps, and your mailbox stops being readable.</h2>
         </div>
+        <ol class="steps-grid" id="howSteps"></ol>
 
-        <div class="pillars-grid" style="text-align: left; margin-top: 52px;">
+        <div class="pillars-grid">
           <div class="pillar-card">
-            <div class="pillar-icon">🧩</div>
-            <h3 data-i18n="pillar1_title">Zero "Island Effect"</h3>
-            <p data-i18n="pillar1_desc">No separate siloed email app to check. Your encrypted personal emails live inside the exact same inbox as your work accounts while keeping corporate SSO/IdP intact.</p>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 8l9 6 9-6" /></svg>
+            <h3 data-i18n="pillar1_title">No new inbox on desktop</h3>
+            <p data-i18n="pillar1_desc">Your filters, labels, shortcuts and the tab you already keep open. Nothing moves.</p>
           </div>
           <div class="pillar-card">
-            <div class="pillar-icon">🛡️</div>
-            <h3 data-i18n="pillar2_title">No Central Proxy Company</h3>
-            <p data-i18n="pillar2_desc">Unlike centralized alias proxies, there is no startup server to trust. SMTP edge nodes run inside hardware enclaves (TEEs) cryptographically attested on Polkadot JAM.</p>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 018 0v3" /></svg>
+            <h3 data-i18n="pillar2_title">Your provider holds ciphertext</h3>
+            <p data-i18n="pillar2_desc">For mail to your domain there is no readable archive to mine, train on, leak or hand over.</p>
           </div>
           <div class="pillar-card">
-            <div class="pillar-icon">🤖</div>
-            <h3 data-i18n="pillar3_title">Local MCP for Your AI Agents</h3>
-            <p data-i18n="pillar3_desc">Cloud AI (Gemini / Copilot) sees pure gibberish. Meanwhile, a built-in Local MCP server unlocks full semantic search and automation on your own machine for your own LLMs.</p>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6" /><path d="M20 20l-4.3-4.3" /></svg>
+            <h3 data-i18n="pillar3_title">Search and AI stay yours</h3>
+            <p data-i18n="pillar3_desc">A local encrypted index gives instant search. A local MCP server lets your own agents work with your mail, on your machine, with your permission.</p>
           </div>
           <div class="pillar-card">
-            <div class="pillar-icon">💎</div>
-            <h3 data-i18n="pillar4_title">Big Tech Pays the Storage Bill</h3>
-            <p data-i18n-html="pillar4_desc">Because encrypted blobs sit inside your free 15 GB / 50 GB Gmail or Outlook storage, network cost is tiny — or <strong>$0/month forever</strong> via reversible DOT staking.</p>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.700-7-5.500-7-10V6l7-3z" /><path d="M9 12l2 2 4-4" /></svg>
+            <h3 data-i18n="pillar4_title">Built to be checked</h3>
+            <p data-i18n="pillar4_desc">Open-source relay images with reproducible builds. Keys and relay measurements in a public append-only log, designed to run on Polkadot JAM.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Interactive Simulator -->
-    <section id="simulador">
+    <!-- Interactive simulator -->
+    <section id="demo">
       <div class="container">
         <div class="section-header">
-          <span class="section-tag" data-i18n="sim_tag">01 // User Perspective</span>
-          <h2 data-i18n="sim_title">Live Inbox Simulator: Blind Cloud Server vs. Your Screen</h2>
+          <span class="section-tag" data-i18n="sim_tag">02 — Demo</span>
+          <h2 data-i18n="sim_title">Both sides of the same inbox.</h2>
           <p data-i18n-html="sim_desc">
-            Switch between <strong>Gmail</strong> and <strong>Outlook</strong> below, toggle to the <strong>Big Tech Disk View</strong> to inspect what actually lands on their servers, and test local instant search and zero-leak replies.
+            Switch between what you see and what the provider stores. Search for <strong>Sinai</strong> in each view. Send a reply and look at what lands in the mailbox.
           </p>
         </div>
 
         <div class="sim-controls-bar">
           <div class="control-group">
-            <span class="control-label" data-i18n="sim_provider_label">Your Provider:</span>
-            <div class="segmented" id="providerToggle">
-              <button class="seg-btn active" data-provider="gmail">Gmail / Workspace</button>
-              <button class="seg-btn" data-provider="outlook">Outlook / M365</button>
+            <span class="control-label" data-i18n="sim_view_label">View</span>
+            <div class="segmented" id="viewToggle" role="group">
+              <button type="button" class="seg-btn view-user active" data-view="user" aria-pressed="true">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.500-7 10-7 10 7 10 7-3.500 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
+                <span data-i18n="sim_view_user">What you see</span>
+              </button>
+              <button type="button" class="seg-btn view-bigtech" data-view="bigtech" aria-pressed="false">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3" /><path d="M4 6v6c0 1.700 3.600 3 8 3s8-1.300 8-3V6" /><path d="M4 12v6c0 1.700 3.600 3 8 3s8-1.300 8-3v-6" /></svg>
+                <span data-i18n="sim_view_bigtech">What the provider stores</span>
+              </button>
             </div>
           </div>
 
           <div class="control-group">
-            <span class="control-label" data-i18n="sim_view_label">Perspective:</span>
-            <div class="segmented" id="viewToggle">
-              <button class="seg-btn view-user active" data-view="user" data-i18n="sim_view_user">🟢 What YOU See (ZeroMX Active)</button>
-              <button class="seg-btn view-bigtech" data-view="bigtech" data-i18n="sim_view_bigtech">🔴 What GOOGLE / MICROSOFT Sees on Disk</button>
+            <span class="control-label" data-i18n="sim_provider_label">Provider</span>
+            <div class="segmented" id="providerToggle" role="group">
+              <button type="button" class="seg-btn active" data-provider="gmail" aria-pressed="true">Gmail</button>
+              <button type="button" class="seg-btn" data-provider="outlook" aria-pressed="false">Outlook</button>
             </div>
           </div>
 
-          <div class="control-group">
-            <button class="btn btn-secondary" id="mobilePreviewBtn" style="padding: 8px 13px; font-size: 0.83rem;" data-i18n="sim_mobile_btn">
-              📱 What About Mobile? (Inspect UX Gap)
-            </button>
-          </div>
+          <button type="button" class="btn btn-ghost btn-sm" id="mobilePreviewBtn">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2" /><path d="M11 18h2" /></svg>
+            <span data-i18n="sim_mobile_btn">What about my phone?</span>
+          </button>
         </div>
 
-        <!-- Simulated Email Client -->
         <div class="mail-window provider-gmail" id="mailWindow">
           <div class="window-topbar">
             <div class="window-brand">
+              <span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span>
               <span class="provider-dot"></span>
-              <span id="providerTitle">Google Workspace — you@yourdomain.com</span>
+              <span id="providerTitle">Gmail — you@yourdomain.com</span>
             </div>
             <div class="search-wrapper">
+              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6" /><path d="M20 20l-4.3-4.3" /></svg>
               <input
-                type="text"
+                type="search"
                 id="inboxSearch"
                 class="search-input"
                 data-i18n-placeholder="sim_search_placeholder"
-                placeholder="🔍 Search emails (try: Sinai, wire, DOT, Acme)..."
+                data-i18n-aria="sim_search_placeholder"
+                placeholder="Search mail (try: Sinai, wire, Alice)"
+                aria-label="Search mail"
+                autocomplete="off"
               />
             </div>
-            <div id="extensionBadge" class="extension-pill active-shield">
-              ⚡ ZeroMX Active • Smoldot P2P + Passkey
-            </div>
+            <div id="extensionBadge" class="extension-pill active-shield">ZeroMX active</div>
           </div>
 
           <div id="statusBanner" class="status-banner banner-user">
-            <span id="statusBannerText">
-              <strong>User View:</strong> Senders, subjects, and bodies decrypted locally in 4ms via WebCrypto + local SQLite search index.
-            </span>
-            <span style="font-family: var(--font-mono); font-size: 0.76rem;" id="searchEngineStatus">
-              🔍 Search: Local Encrypted SQLite
-            </span>
+            <span id="statusBannerText"></span>
+            <span class="status-engine" id="searchEngineStatus"></span>
           </div>
 
           <div class="mail-body-grid">
-            <!-- Left Sidebar -->
             <aside class="mail-sidebar">
-              <button class="compose-btn" id="openComposeBtn" data-i18n="sim_compose_btn">✍️ Encrypted Compose</button>
+              <button type="button" class="compose-btn" id="openComposeBtn">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l10-10-4-4L4 16v4z" /></svg>
+                <span data-i18n="sim_compose_btn">Compose</span>
+              </button>
               <div class="folder-item active"><span data-i18n="folder_inbox">Inbox</span><span id="inboxCount">4</span></div>
               <div class="folder-item"><span data-i18n="folder_starred">Starred</span><span>2</span></div>
-              <div class="folder-item"><span data-i18n="folder_sent">Sent (Ciphertext)</span><span>18</span></div>
-              <div class="folder-item"><span>_zeromx_index</span><span>sync</span></div>
+              <div class="folder-item"><span data-i18n="folder_sent">Sent</span><span>18</span></div>
 
               <div class="account-tag-list">
-                <div class="account-tag-title" data-i18n="origins_title">Unified Sources</div>
-                <div class="account-chip" id="originPersonalChip">🛡️ <code>@yourdomain.com</code> (ZeroMX)</div>
-                <div class="account-chip" id="originWorkChip">🏢 <code>@acme.io</code> (Work IdP)</div>
+                <div class="account-tag-title" data-i18n="origins_title">Addresses in this inbox</div>
+                <div class="account-chip chip-sealed" id="originPersonalChip"></div>
+                <div class="account-chip chip-plain" id="originWorkChip"></div>
               </div>
             </aside>
 
-            <!-- Message List -->
             <div class="mail-list" id="mailList"></div>
-
-            <!-- Message Detail -->
-            <div class="mail-detail" id="mailDetail"></div>
+            <div class="mail-detail" id="mailDetail" aria-live="polite"></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Architecture Step-by-Step -->
-    <section id="arquitetura">
+    <!-- Comparison -->
+    <section id="compare">
       <div class="container">
         <div class="section-header">
-          <span class="section-tag" data-i18n="arch_tag">02 // Architecture Demystified</span>
-          <h2 data-i18n="arch_title">Follow an Email Step by Step (Click Any Stage)</h2>
+          <span class="section-tag" data-i18n="compare_tag">The alternatives</span>
+          <h2 data-i18n="compare_title">Every other option makes you give something up.</h2>
+          <p data-i18n="compare_desc">Stay and be read, move and start over, or bolt on a plugin most senders can’t use. ZeroMX is the fourth column.</p>
+        </div>
+        <div class="compare-scroll" id="compareTable"></div>
+      </div>
+    </section>
+
+    <!-- Flow explorer -->
+    <section id="flow">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" data-i18n="arch_tag">03 — Under the hood</span>
+          <h2 data-i18n="arch_title">Follow one email, stage by stage.</h2>
           <p data-i18n="arch_desc">
-            Inspect what happens across all 3 real-world scenarios — receiving legacy mail from banks/hospitals, replying without leaking drafts, and messaging another ZeroMX user.
+            Pick a scenario, then click a stage to see who can see what at that moment, including the parts that aren’t perfect.
           </p>
         </div>
 
-        <div class="flow-tabs" id="flowTabs">
-          <button class="flow-tab active" data-flow="inbound" data-i18n="flow_tab_inbound">1. Inbound Legacy Mail (Bank / Hospital → You)</button>
-          <button class="flow-tab" data-flow="outbound" data-i18n="flow_tab_outbound">2. Replying from Gmail / Outlook (You → World)</button>
-          <button class="flow-tab" data-flow="native" data-i18n="flow_tab_native">3. ZeroMX ↔ ZeroMX (Pure Mathematical E2EE)</button>
+        <div class="flow-tabs" id="flowTabs" role="group">
+          <button type="button" class="flow-tab active" data-flow="inbound" data-i18n="flow_tab_inbound" aria-pressed="true">A bank or clinic emails you</button>
+          <button type="button" class="flow-tab" data-flow="outbound" data-i18n="flow_tab_outbound" aria-pressed="false">You reply</button>
+          <button type="button" class="flow-tab" data-flow="native" data-i18n="flow_tab_native" aria-pressed="false">ZeroMX to ZeroMX</button>
         </div>
 
         <div class="flow-stage">
           <div class="flow-nodes-row" id="flowNodesRow"></div>
-          <div class="step-inspector" id="stepInspector"></div>
+          <div class="step-inspector" id="stepInspector" aria-live="polite"></div>
         </div>
       </div>
     </section>
 
-    <!-- Deep Dive: Who operates SMTP & How JAM Proves Zero Access -->
-    <section id="provas-jam">
+    <!-- Trust -->
+    <section id="trust">
       <div class="container">
         <div class="section-header">
-          <span class="section-tag" data-i18n="proof_tag">03 // Sovereignty &amp; Port 25 Physics</span>
-          <h2 data-i18n="proof_title">Who Runs the SMTP Servers? And How Does JAM Prove Nobody Read Your Mail?</h2>
-          <p data-i18n-html="proof_desc">
-            Zero hand-waving: here is who operates the physical relays and the <strong>3 cryptographic assurance tiers</strong> achievable today with Polkadot JAM.
+          <span class="section-tag" data-i18n="trust_tag">04 — Trust</span>
+          <h2 data-i18n="trust_title">What you’re trusting, stated plainly.</h2>
+          <p data-i18n="trust_desc">
+            Most privacy products are vaguest exactly here. These are the three levels of protection, what each one rests on, and what ZeroMX does not protect.
           </p>
         </div>
 
-        <div class="proof-grid" id="proofGrid"></div>
+        <div class="tier-grid" id="proofGrid"></div>
+        <div class="ledger" id="gapsGrid"></div>
+        <p class="trust-note" data-i18n-html="trust_note"></p>
       </div>
     </section>
 
-    <!-- Onboarding & Universal Provider Compatibility -->
-    <section id="onboarding">
+    <!-- Getting started -->
+    <section id="start">
       <div class="container">
         <div class="section-header">
-          <span class="section-tag" data-i18n="onboard_tag">04 // Universal Onboarding</span>
-          <h2 data-i18n="onboard_title">Only Prerequisite: Owning a Custom Domain</h2>
-          <p data-i18n="onboard_desc">
-            Whether you live in Gmail, Google Workspace, Outlook 365, iCloud, or Fastmail, your custom domain becomes a sovereign cryptographic shield in 3 minutes.
-          </p>
+          <span class="section-tag" data-i18n="onboard_tag">05 — Getting started</span>
+          <h2 data-i18n="onboard_title">One requirement: an address on your own domain.</h2>
+          <p data-i18n="onboard_desc">Setup is designed to take a few minutes, and to be something you can undo.</p>
         </div>
 
-        <div class="onboarding-grid" id="onboardingGrid"></div>
+        <ol class="onboarding-grid" id="onboardingGrid"></ol>
+        <p class="pricing-note" data-i18n-html="pricing_note"></p>
       </div>
     </section>
 
-    <!-- Product GAP Radar -->
-    <section id="gaps">
+    <!-- Investors -->
+    <section id="investors" class="band-manila">
       <div class="container">
         <div class="section-header">
-          <span class="section-tag" data-i18n="gaps_tag">05 // Critical Product Lens</span>
-          <h2 data-i18n="gaps_title">UX Gap Radar: Where Could This Break in Daily Life?</h2>
-          <p data-i18n-html="gaps_desc">
-            Looking strictly from a demanding user's perspective, blinding Gmail/Outlook introduces <strong>6 real-world friction points</strong> that the product design must solve head-on:
-          </p>
+          <span class="section-tag" data-i18n="inv_tag">For investors</span>
+          <h2 data-i18n="inv_title">Private email lost because it asked people to move. This doesn’t.</h2>
+          <p data-i18n="inv_lede">Encrypted mail has a proven market and a hard ceiling: most people will not leave the inbox they have used for fifteen years. ZeroMX sells the privacy without the move.</p>
         </div>
-
-        <div class="gaps-grid" id="gapsGrid"></div>
+        <div class="stat-row" id="invStats"></div>
+        <div class="point-grid" id="invPoints"></div>
+        <div class="band-cta">
+          <p data-i18n-html="inv_stage"></p>
+          <button type="button" class="btn btn-ink btn-lg" id="invCtaBtn" data-i18n="inv_cta">Start a conversation</button>
+        </div>
       </div>
     </section>
 
-    <!-- Early Access Waitlist Section -->
+    <!-- Developers -->
+    <section id="developers" class="band-ink">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" data-i18n="dev_tag">For developers</span>
+          <h2 data-i18n="dev_title">Hard problems, meant to be solved in the open.</h2>
+          <p data-i18n="dev_lede">Client, relay and protocol are meant to be open source with reproducible builds. The repository is private while the design settles. Ask for access and pick one of these.</p>
+        </div>
+        <ul class="stack-row" id="devStack"></ul>
+        <div class="problem-grid" id="devProblems"></div>
+
+        <div class="jam-panel">
+          <h3 data-i18n="jam_title">Why the control plane targets Polkadot JAM</h3>
+          <div class="jam-points" id="jamPoints"></div>
+          <p class="jam-note" data-i18n-html="jam_note"></p>
+        </div>
+
+        <div class="band-cta">
+          <button type="button" class="btn btn-paper btn-lg" id="devCtaBtn" data-i18n="dev_cta">Ask for repository access</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Roadmap -->
+    <section id="roadmap">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" data-i18n="road_tag">06 — Roadmap</span>
+          <h2 data-i18n="road_title">Where this is today.</h2>
+          <p data-i18n="road_desc">ZeroMX is at design stage. Nothing here is a shipped product yet. This is the order things get built in.</p>
+        </div>
+        <ol class="roadmap" id="roadmapList"></ol>
+      </div>
+    </section>
+
+    <!-- Waitlist -->
     <section id="waitlist" class="waitlist-section">
       <div class="container">
         <div class="waitlist-banner">
           <div class="waitlist-copy">
-            <span class="section-tag" data-i18n="wl_tag">06 // Early Access &amp; Testnet</span>
-            <h2 data-i18n="wl_title">Want sovereign email inside your current inbox?</h2>
+            <span class="section-tag" data-i18n="wl_tag">Early access</span>
+            <h2 data-i18n="wl_title">Get an alpha invite.</h2>
             <p data-i18n="wl_desc">
-              Join the early access cohort as we roll out the browser extension, Mobile Passkey Companion, and Polkadot JAM Blind MX testnet.
+              The private alpha starts with Gmail on desktop Chrome. Tell us about your setup and we’ll invite the people it fits first.
             </p>
             <ul class="waitlist-perks">
-              <li data-i18n="wl_perk1">✅ Priority invite for Gmail &amp; Outlook custom-domain beta</li>
-              <li data-i18n="wl_perk2">✅ Early Stake-to-Use ($0/mo via DOT) &amp; TEE Node Operator slots</li>
-              <li data-i18n="wl_perk3">🔒 Zero spam — we will only email you when your slot opens</li>
+              <li data-i18n="wl_perk1">First invites to the private alpha</li>
+              <li data-i18n="wl_perk2">Your setup shapes what gets built first</li>
+              <li data-i18n="wl_perk3">One email when your invite is ready. No newsletter.</li>
             </ul>
           </div>
           <div class="waitlist-form-box" id="inlineWaitlistMount"></div>
         </div>
       </div>
     </section>
+
+    <!-- FAQ -->
+    <section id="faq">
+      <div class="container faq-container">
+        <div class="section-header">
+          <span class="section-tag" data-i18n="faq_tag">07 — Questions</span>
+          <h2 data-i18n="faq_title">Fair questions.</h2>
+        </div>
+        <div class="faq-list" id="faqList"></div>
+      </div>
+    </section>
   </main>
 
-  <!-- Modal: Secure Reply / Mobile Preview -->
+  <!-- Modal: compose, phone preview, waitlist -->
   <div class="modal-backdrop" id="modalBackdrop">
-    <div class="modal-card" id="modalContent"></div>
+    <div class="modal-card" id="modalContent" role="dialog" aria-modal="true" tabindex="-1"></div>
   </div>
 
   <footer class="footer">
-    <div class="container" data-i18n="footer_text">
-      ZeroMX — Product Vision &amp; Interactive Architecture Prototype (Polkadot JAM + Blind MX + Provider-Agnostic)
+    <div class="container footer-inner">
+      <span class="brand brand-footer">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="16" cy="16" r="16" fill="currentColor" />
+          <circle cx="16" cy="16" r="7" fill="none" stroke="#f3efe6" stroke-width="2.4" />
+          <path d="M10 22L22 10" stroke="#f3efe6" stroke-width="2.4" stroke-linecap="round" />
+        </svg>
+        <span>ZeroMX</span>
+      </span>
+      <p data-i18n="footer_text">ZeroMX is a design-stage project. This page is an interactive prototype, not a shipped product.</p>
+      <p class="footer-built" data-i18n="footer_built">Control plane designed for Polkadot JAM.</p>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="#roadmap" data-i18n="road_tag">Roadmap</a>
+        <a href="#faq" data-i18n="faq_tag">Questions</a>
+        <a href="#waitlist" data-i18n="wl_tag">Early access</a>
+      </nav>
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="i18n.js" defer></script>
+  <script src="app.js" defer></script>
 </body>
 </html>

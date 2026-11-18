@@ -204,6 +204,14 @@ module.exports = async function handler(req, res) {
       }
     }
 
+    // Runtime logs expire, so they are not a waitlist. If no durable backend accepted
+    // the entry (none configured, or all failed), tell the visitor it did not go
+    // through instead of confirming a signup that was never stored.
+    if (!durablePersisted) {
+      console.error('[ZEROMX_WAITLIST_NOT_PERSISTED] No durable backend stored this entry. Configure one of the env vars listed at the top of this file.');
+      return res.status(503).json({ ok: false, error: 'Waitlist storage unavailable' });
+    }
+
     return res.status(200).json({
       ok: true,
       durablePersisted,
