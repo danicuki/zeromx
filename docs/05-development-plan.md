@@ -21,8 +21,8 @@ zeromx/
 └── packages/
     ├── extension/                     # Manifest V3 WebExtension (Gmail & Outlook Web adapters + Shadow Composer)
     ├── search-worker/                 # Encrypted wa-sqlite (FTS5 + OPFS) Web Worker & cloud delta syncer
-    ├── smoldot-client/                # Embedded Polkadot JAM P2P state verifier wrapper
-    └── mobile-companion/              # Lightweight Passkey PWA / Capacitor wrapper for iOS & Android
+    ├── directory-client/              # Key directory verifier: transparency proofs now, JAM light client when one exists
+    └── mobile-app/                    # Native iOS / Android app with notification-extension decryption
 ```
 
 ---
@@ -33,10 +33,10 @@ zeromx/
 | :--- | :--- | :--- |
 | **Shared Cryptography** | Rust (`hpke`, `chacha20poly1305`, `ml-kem`, `mail-parser`, `zeroize`) -> `wasm-bindgen` | Single audited codebase across server TEE and browser extension; eliminates JS crypto footguns and guarantees byte-identical MIME framing. |
 | **Polkadot JAM Service** | Rust `no_std` targeting **PVM (RISC-V)** | Native RISC-V performance allows verifying ASN.1/ECDSA P-384 AMD SEV-SNP certificates and ZK `RLN` proofs inside `Refine` at a fraction of EVM gas cost. |
-| **Browser Chain Verification** | `@substrate/smoldot-light` (Web Worker) | True P2P light client inside Chrome/Brave/Firefox — zero reliance on centralized RPC servers that could lie about recipient public keys or log user IPs. |
+| **Directory Verification** | Merkle inclusion + consistency proofs with witness co-signatures (Web Worker). JAM light client when available. | A lying directory is the way to substitute a recipient's key. Proofs plus independent witnesses make substitution detectable without a live chain. Smoldot does not speak JAM, and no JAM light client exists yet, so RPC-free verification is a later milestone ([07, section 7](07-threat-model-and-limits.md)). |
 | **Confidential Relay OS** | NixOS minimal initramfs on **AMD SEV-SNP** / **Intel TDX** | Bit-for-bit reproducible builds (`flake.nix`) ensure anyone can compile `zeromx-relay` from source and verify its exact SHA-384 measurement on Polkadot JAM. |
 | **SMTP & Auth Stack** | Rust (`tokio`, `rustls`, `mail-auth` for SPF/DKIM/DMARC/ARC) | Memory-safe async parser immune to C buffer-overflow exploits on Port 25 (`Exim`/`Sendmail` class vulnerabilities). |
-| **Webmail UI Layer** | TypeScript + Closed **Shadow DOM** + Isolated `sandbox` iframes | Prevents Gmail/Outlook host page scripts from reading decrypted DOM nodes or keystrokes inside the secure composer, and shields against CSS collisions. |
+| **Webmail UI Layer** | TypeScript + cross-origin **extension iframes** (Shadow DOM for mount-point styling only) | The same-origin policy keeps host-page scripts out of an extension-origin frame. Shadow DOM is not a security boundary and is never relied on as one. |
 | **Local Search Engine** | `wa-sqlite` (`FTS5`) over Browser `OPFS` with AES-256-GCM VFS | Delivers <5ms full-text search across 50,000+ messages purely locally without external daemons. |
 | **Sovereign AI Bridge** | `@modelcontextprotocol/sdk` (`zeromx-mcp`) | Out-of-the-box compatibility with Claude Desktop, Cursor, Zed, Windsurf, and custom local agent workflows. |
 
@@ -55,7 +55,14 @@ An enclave attestation is meaningless if users cannot verify what source code pr
 1. GitHub Actions + independent community builders compile `crates/zeromx-relay` inside a pinned Nix derivation (`nix build .#sev-snp-image`).
 2. The resulting `MEASUREMENT` digest is published with SLSA Provenance and registered in `allowed_enclave_measurements` on the ZeroMX JAM service via a transparent 7-day timelock.
 
-### 3.3 Resilient Webmail Adapter Strategy (Anti-DOM-Breakage)
+### 3.3 Extension Release Integrity
+The extension publisher can read every user's mail by shipping one malicious update. This is the most powerful position in the system and gets the strictest process:
+1. Reproducible extension builds from a tagged commit.
+2. Releases require signatures from **two independent builders** whose outputs match.
+3. Updates are published with a public diff and a delay before auto-update, with a documented path to install a self-built copy.
+4. No remote code, no remote configuration that changes behavior.
+
+### 3.4 Resilient Webmail Adapter Strategy (Anti-DOM-Breakage)
 Instead of brittle CSS class scraping (`.a3s.aiL` in Gmail):
 - Match structural ARIA landmarks (`role="main"`, `role="listitem"`, RFC armor markers `-----BEGIN ZEROMX`) and run automated **nightly Playwright canary tests** against live Gmail & Outlook accounts to catch frontend rollouts within hours.
 - Provide a 1-click fallback **"Open in ZeroMX Local Vault View"** tab inside the extension itself (powered via standard OAuth/IMAP `messages.get` raw fetch) so even if Gmail completely rewrites its HTML overnight, users experience **zero downtime** reading or sending mail.
@@ -64,6 +71,7 @@ Instead of brittle CSS class scraping (`.a3s.aiL` in Gmail):
 
 ## 4. Verification & QA Matrix
 
+0. **Mailbox Leak Audit:** export the raw test mailbox and assert it contains no plaintext body, real sender, real subject, or real `Message-ID` for any sealed message.
 1. **Cryptographic & MIME Corpus Suite:** Property-based tests (`proptest`) over 10,000 real-world malformed MIME emails (nested multiparts, inline CID images, 25 MB attachments, non-UTF8 charsets, calendar `.ics` files).
 2. **Zero-Leak Network Audit:** Automated Playwright + MITM proxy test asserting that typing a 500-word reply inside Gmail triggers **zero** `mail.google.com` draft-save requests containing any substring of the plaintext.
 3. **Deliverability & Postmaster Harness:** Automated inbound/outbound test matrix validating `SPF=pass`, `DKIM=pass`, `DMARC=pass`, and Gmail/Outlook thread grouping across 10-message back-and-forth replies.

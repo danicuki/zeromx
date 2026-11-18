@@ -12,7 +12,17 @@ The email privacy market has historically been polarized into two flawed models:
    - Centralize trust in a single company's MX servers.
    - Fragmented UX: broken webmail search, broken conversation threads, leaked plaintext drafts, broken mobile apps, and broken AI/MCP workflows.
 
-**ZeroMX occupies the unserved quadrant: High Sovereignty + Zero Workflow Migration + Near-Zero Marginal Cost.**
+**ZeroMX targets the unserved quadrant: strong mailbox privacy, no desktop workflow migration, and low marginal cost.**
+
+### Who Actually Buys This
+
+The buyer is narrower than "everyone who uses Gmail", and the plan should be sized to it:
+
+1. **Founders, freelancers and consultants who already own a domain** and run it on Gmail or Google Workspace. They hold client contracts, health and financial mail, and will not move to another mail app.
+2. **Crypto-native users**, for whom a wallet, a stake, and a custom domain are normal.
+3. **Small regulated firms** (law, accounting, clinics) on Workspace or Microsoft 365. This is the B2B gateway, with different requirements (section 3, Model C).
+
+Owning a custom domain is the main funnel constraint. Onboarding must be able to **register a domain for the user, in the user's name**, in the same flow.
 
 ---
 
@@ -22,55 +32,68 @@ Traditional email providers spend 70–85% of their infrastructure COGS on **dur
 
 ZeroMX stores **zero bytes of user email**:
 - **Storage & Bandwidth COGS = $0.00:** Google (15 GB–2 TB) or Microsoft (50 GB–1 TB) pays the entire storage, replication, CDN, and archival bill for the user's encrypted blobs.
-- **Relay Compute COGS < $0.04 / user / month:**
-  - Average heavy professional receives ~150 emails/day (~4,500/month).
-  - Each email requires ~3 ms of stateless RAM execution inside an attested AMD SEV-SNP / Intel TDX relay (`4,500 * 3 ms = 13.5 CPU-seconds/month`).
-  - A single $120/month confidential compute server comfortably handles **15,000+ active users** while maintaining <25% utilization.
-- **Polkadot JAM Coretime COGS < $0.02 / user / month:**
+- **Relay Compute COGS: a few cents per user per month.**
+  - A heavy user receives ~150 emails/day (~4,500/month).
+  - Sealing a typical message costs milliseconds of CPU. Large attachments and spam scoring cost more, and inbound mail is bursty, so capacity is planned on peak concurrent connections and RAM, not on average CPU.
+  - Planning figure: one confidential VM per ~5,000 active users, at least three operators per domain for redundancy.
+- **The costs that actually dominate are not compute:**
+  - **Outbound IP reputation and deliverability operations** (warm-up, feedback loops, blocklist handling).
+  - **Abuse handling and support.**
+  - **Security audits and provider verification** (extension audit, relay audit, yearly mailbox-API security assessment).
+  - **People.** The unit economics below are infrastructure only.
+- **Platform risk of the arbitrage:** the vault is someone else's product. A provider can rate-limit, spam-folder, or block relay deliveries, or change webmail in ways that break the extension. Mitigations: the vault is portable (repoint forwarding to any IMAP host and keep address and keys), the format is standard MIME, and the extension ships a standalone reader that does not depend on the webmail page.
+- **Polkadot JAM Coretime COGS < $0.02 / user / month (estimate, to be benchmarked):**
   - ZeroMX never posts emails on-chain. Only operator hardware attestations (1x per epoch), domain key updates (rare), and batched `RLN` quota roots touch JAM — amortizing Polkadot Agile Coretime across tens of thousands of users.
 
 | Metric | Siloed Encrypted Provider (e.g., Proton) | ZeroMX Network |
 | :--- | :--- | :--- |
 | **Archival Storage Provider** | Self-hosted Swiss servers (High COGS) | Piggybacks on Gmail / Outlook ($0 COGS) |
-| **Infrastructure Cost / User / Mo** | ~$1.20 – $2.50 | **~$0.05 – $0.08** |
-| **Retail Price Needed for Viability** | $5.00 – $12.00 / mo | **$0/mo (via DOT Stake) or $1.99/mo Fiat** |
-| **User Inbox Migration Required?** | Yes (new app, new habits) | **No (stays inside Gmail / Outlook)** |
+| **Infrastructure Cost / User / Mo** | ~$1.20 – $2.50 | **~$0.10 – $0.25** (planning estimate, unvalidated) |
+| **Retail Price** | $5.00 – $12.00 / mo | **$3 / mo or $29 / year**, or stake |
+| **User Inbox Migration Required?** | Yes (new app, new habits) | **Desktop: no. Phone: the ZeroMX app.** |
+
+The earlier $1.99 price left no room for audits, deliverability, or support. $3 is still well under the incumbents, and the pitch is the workflow, not the price.
 
 ---
 
-## 3. Dual Monetization Engine (Web3 + Web2 Seamless)
+## 3. Monetization
 
-To capture both crypto-native builders and mainstream privacy-conscious professionals without friction, ZeroMX offers two ways to fund network usage:
+Fiat subscription is the primary model. Staking is an option for users who already hold DOT, added once the control plane runs on JAM.
 
-### Model A — "Stake-to-Use" ($0/Month Perceived Cost via DOT Yield)
+### Model A — Subscription (Primary)
 
-Solving the *"Why am I paying monthly when Gmail is free?"* objection:
-1. A user locks **e.g. 25–40 DOT** inside the non-custodial ZeroMX Staking Vault on Polkadot JAM.
-2. The user **retains 100% ownership of their principal** and can unbond/withdraw whenever they stop using the service.
-3. Nominal staking yield generated by that DOT (~10–14% APR -> ~$15–$25/year equivalent) automatically pays:
-   - **70%** to Attested Ingress & Reputed Egress Relay Operators (proportional to verified delivery proofs & uptime).
-   - **20%** to Polkadot Agile Coretime procurement.
-   - **10%** to Protocol Treasury / Open-Source Client Maintenance.
-4. **Psychological Impact:** To the user, ZeroMX feels **permanently free** — zero monthly credit card charges, zero sunk cost.
+Users never see wallets, gas, or tokens:
+- **ZeroMX Personal (`$3 / month` or `$29 / year`):** One custom domain, unlimited addresses and per-sender aliases, desktop extension, mobile app, local search, and Local MCP server.
+- **ZeroMX Pro (`$7 / month`):** Up to 5 custom domains, full-archive indexing, legacy-address migration tools, and Tier-3 split-trust ingress when available.
+- Revenue pays relay operators, coretime, audits, and development.
 
-### Model B — Frictionless Fiat Micro-Subscription (For Non-Crypto Users)
+### Model B — "Stake-to-Use" (Optional, Later)
 
-Users who do not hold DOT never see wallets, gas, or tokens:
-- **ZeroMX Personal (`$1.99 / month` or `$19 / year`):** Unlimited custom-domain addresses (`*@yourdomain.com`), Desktop Extension, Mobile Companion PWA, Local SQLite Search, and Local MCP Server.
-- **ZeroMX Pro / Freelancer (`$4.99 / month`):** Up to 5 custom domains, custom delegated outbound DKIM, Legacy `@gmail.com` Vault Sweeper, and Tier-3 Paranoid Split `MPC-TLS` ingress option.
-- Under the hood, fiat revenue collected by the gateway gateway entity automatically buys Polkadot Coretime and distributes operator rewards on JAM.
+For users who hold DOT and would rather lock capital than pay a bill:
+1. The user stakes DOT through a **nomination pool** dedicated to ZeroMX. Principal stays the user's and can be unbonded under the normal Polkadot unbonding rules.
+2. The pool's staking rewards are routed to the network: operators, coretime, and the protocol treasury.
+3. **Sizing must follow current yield.** Polkadot's 2026 issuance changes cut inflation to roughly 3%, and staking returns fell with it. The original "25–40 DOT at 10–14% APR" no longer holds. The required stake is `annual price / (DOT price × current net yield)` and is recomputed each era. At low yields the stake needed for a $29/year plan is several hundred dollars of DOT.
+4. **What this is and is not.** It is "no monthly bill". It is not "free": the user forgoes the staking rewards and carries DOT price risk and slashing risk. The website must say so, and the offer needs a legal review per market before launch.
+
+Open design question: how a JAM service receives rewards from relay-chain staking is not specified by JAM itself. The nomination-pool route works today without it.
 
 ### Model C — B2B Compliance & Sovereignty Gateway (`$6 – $9 / seat / month`)
 
 Remember why companies stay locked into Google Workspace and Microsoft 365: **SSO/IdP, Docs, Meet/Teams, and Admin UX**. Yet law firms, fintechs, healthcare providers, defense contractors, and European/Brazilian enterprises (`GDPR` / `LGPD` / `HIPAA` / US Cloud Act exposure) increasingly cannot allow US cloud providers or cloud LLMs to scan confidential client communications.
 
-- **Enterprise Value Proposition:** IT keeps Google Workspace or Microsoft 365 intact, points the corporate domain's `MX` to dedicated/geo-fenced ZeroMX TEE clusters (e.g., EU-only or Brazil-only enclaves), and deploys the extension via Chrome Enterprise Policy / Intune MDM in 15 minutes.
+- **Enterprise Value Proposition:** IT keeps Google Workspace or Microsoft 365 intact, points the corporate domain's `MX` to **dedicated, single-tenant** ZeroMX relays in a chosen jurisdiction (e.g., EU-only or Brazil-only), and deploys the extension via Chrome Enterprise Policy / Intune MDM. Enterprises do not route mail through community operators.
+- **Requirements the consumer design does not meet, and which gate this offer:**
+  - **Organization-held keys.** The firm, not the employee, must be able to decrypt: for offboarding, legal hold, eDiscovery, and supervision rules that bind law firms and financial firms. This means an org key service (the role a KACLS plays in Google CSE), with audited access.
+  - **Journaling and archiving.** Regulated firms must retain readable copies. The gateway needs an encrypted journal the firm's compliance tooling can open.
+  - **Mobile device management.** Most corporate mail is read on phones, so the mobile app must be MDM-deployable.
+- **Sequence:** B2B starts after the consumer product has an audit and a year of deliverability history. It is not a launch market.
 - **High-Margin Recurring Revenue:** Priced far below Google Workspace Enterprise Plus + third-party CSE KACLS ($25–$35/seat), while actually encrypting *inbound external mail* (which Google CSE cannot do!).
 
 ---
 
 ## 4. Supply-Side Operator Economics (DePIN Flywheel)
 
-1. **Permissionless Ingress Operators:** Low capital barrier; earn base availability rewards + per-envelope encrypted forwarding micro-fees; slashed for downtime or invalid attestation attempts.
-2. **High-Bond Reputed Egress Operators:** Stake a higher DOT bond reflecting the scarcity and value of clean IPv4 ranges; earn a 3x multiplier per outbound message delivered; protected from spammer IP blacklisting by JAM's mandatory `RLN` proofs.
-3. **Client Open-Source Sustainability:** Core client, `Smoldot` integration, and `zeromx-relay` remain 100% open-source (auditable reproducible builds), while the B2B Admin Policy Console, managed fiat onboarding, and turnkey enterprise compliance reporting generate high-margin software revenue.
+1. **Ingress Operators:** Run by the ZeroMX team at launch, then by vetted, publicly listed operators who can show they have no physical access to their hosts ([07, section 4](07-threat-model-and-limits.md)). Earn availability rewards and per-envelope fees. Bond is forfeited for downtime or a failed attestation. Note that silent copying of mail leaves nothing to slash, which is why admission is vetted.
+2. **Egress Operators:** Higher bond, reflecting the value of clean IP ranges. Earn a multiplier per delivered message. Protected by per-account quotas, later by `RLN` proofs.
+3. **Opening the operator set** is tied to Tier-3 split-trust ingress, not to a date.
+4. **Client Open-Source Sustainability:** Core client, directory verifier, and `zeromx-relay` remain 100% open-source (auditable reproducible builds), while the B2B Admin Policy Console, managed fiat onboarding, and turnkey enterprise compliance reporting generate high-margin software revenue.

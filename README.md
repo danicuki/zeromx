@@ -1,10 +1,12 @@
 # ZeroMX
 
-**Keep Gmail or Outlook. Strip away their power to read your life.**
+**Keep your inbox. Make it blind.**
 
-ZeroMX is a decentralized, provider-agnostic email privacy protocol and client layer powered by **Polkadot JAM** and hardware-attested **Blind MX Enclaves (TEEs)**.
+ZeroMX seals the mail sent to your custom domain (`@yourdomain.com`) before it reaches your mailbox provider. Your provider stores ciphertext it cannot read, search, or scan. On desktop you keep reading and replying inside your normal webmail through a browser extension. On your phone you use the ZeroMX app.
 
-By pointing a custom domain (`@yourdomain.com`) to the ZeroMX relay network, any existing email provider — **Gmail, Google Workspace, Outlook / Microsoft 365, iCloud Mail, Fastmail, or standard IMAP** — is reduced to a **free, blind ciphertext database**. Users keep their everyday inbox, corporate SSO/IdP, unified workflows, instant search, and local AI/MCP integrations without adopting "yet another siloed email app" or trusting a centralized proxy startup.
+Relays run in attested confidential VMs. Keys, relay measurements, and operators are recorded in a public control plane designed for **Polkadot JAM**. Gmail on desktop Chrome is the first supported vault. Outlook, iCloud, Fastmail and generic IMAP follow.
+
+**Status: design stage.** Nothing here is in production. What the system protects, what it does not, and who is still trusted are stated in [docs/07](docs/07-threat-model-and-limits.md).
 
 ---
 
@@ -12,17 +14,25 @@ By pointing a custom domain (`@yourdomain.com`) to the ZeroMX relay network, any
 
 ```text
 .
-├── site/                              # Interactive Product Vision & Live UX Simulator (EN default + PT)
-│   ├── index.html                     # Landing page + Inbox Simulator + Architecture Explorer + UX Gap Radar
-│   ├── styles.css                     # Design system & responsive layout
-│   └── app.js                         # Interactive simulator state, bilingual i18n (EN/PT), modals & flows
+├── site/                              # Landing page and interactive prototype (EN + PT), no build step
+│   ├── index.html                     # Page structure: hero, demo, comparison, trust, investors, developers, waitlist
+│   ├── styles.css                     # "Sealed post" identity: paper, ink, seal red
+│   ├── i18n.js                        # All copy, English and Brazilian Portuguese
+│   ├── app.js                         # Lens, inbox simulator, flow explorer, modals, waitlist widget
+│   ├── fonts/                         # Self-hosted Instrument Serif, Instrument Sans, IBM Plex Mono (OFL)
+│   ├── favicon.svg
+│   └── og.png                         # Link preview image (1200x630)
+├── api/
+│   └── waitlist.js                    # POST /api/waitlist serverless function
 ├── docs/                              # Architecture, Technical Spec, Business Model, Roadmap & Backlog
 │   ├── 01-architecture.md             # System architecture, Mermaid sequence diagrams & assurance tiers
 │   ├── 02-technical-specification.md  # Cryptographic envelope, Polkadot JAM PVM service, TEE relays & MCP
 │   ├── 03-business-model.md           # Storage arbitrage unit economics, Stake-to-Use (DOT) & B2B gateway
-│   ├── 04-roadmap.md                  # Phased milestones from PoC (M0) to Mainnet & Enterprise (M4)
+│   ├── 04-roadmap.md                  # Private alpha to open network, external gates & top risks
 │   ├── 05-development-plan.md         # Target Rust/TS monorepo layout, reproducible TEE builds & QA plan
-│   └── 06-backlog-and-issues.md       # Prioritized Epics & 24 actionable GitHub issues (ZMX-001..ZMX-024)
+│   ├── 06-backlog-and-issues.md       # Prioritized Epics & 33 actionable GitHub issues (ZMX-001..ZMX-033)
+│   ├── 07-threat-model-and-limits.md  # What is protected, who is trusted, known limits, claims we do not make
+│   └── 08-why-polkadot-jam.md         # What JAM adds, what it lacks today, and a review of the "only JAM" argument
 └── vercel.json                        # Zero-config static deployment configuration for Vercel
 ```
 
@@ -30,12 +40,14 @@ By pointing a custom domain (`@yourdomain.com`) to the ZeroMX relay network, any
 
 ## Documentation Index
 
-1. **[01 — Architecture Overview](docs/01-architecture.md)**: Data Plane vs. Polkadot JAM Control Plane, provider-agnostic flows, autonomous SMTP operators, and the 3 cryptographic assurance tiers.
-2. **[02 — Technical Specification](docs/02-technical-specification.md)**: `HPKE` + `RFC 9788` metadata-hiding envelopes, deterministic thread tokens, SEV-SNP/TDX remote attestation in JAM `Refine` (RISC-V PVM), `Smoldot` P2P verification, ZK `RLN` anti-spam, Passkey (`WebAuthn PRF`) keys, local `SQLite` search, and Local MCP server.
-3. **[03 — Business Model & Tokenomics](docs/03-business-model.md)**: Why privacy email failed mainstream adoption, Big Tech storage arbitrage (`$0` archival COGS), `Stake-to-Use` via DOT yield, micro-subscriptions, and B2B Workspace/M365 compliance gateways.
-4. **[04 — Product & Engineering Roadmap](docs/04-roadmap.md)**: Milestone breakdown across cryptography, Polkadot JAM service, TEE relays, browser/mobile clients, and enterprise rollout.
+1. **[01 — Architecture Overview](docs/01-architecture.md)**: Data plane vs. control plane, the three mail flows, relay operators, and the three assurance tiers.
+2. **[02 — Technical Specification](docs/02-technical-specification.md)**: Hybrid post-quantum `HPKE` envelopes with `RFC 9788` protected headers, pseudonymized threading, Padmé padding, the control plane (transparency log, then JAM service), relay daemon, Passkey (`WebAuthn PRF`) keys, local search, and Local MCP server.
+3. **[03 — Business Model](docs/03-business-model.md)**: Who buys this, cost structure, subscription pricing, optional Stake-to-Use, and the B2B gateway's requirements.
+4. **[04 — Product & Engineering Roadmap](docs/04-roadmap.md)**: Private alpha to open network, with external gates and top risks.
 5. **[05 — Development Plan](docs/05-development-plan.md)**: Proposed Rust + TypeScript monorepo architecture, reproducible enclave builds, security auditing, and test harnesses.
-6. **[06 — Epics, Backlog & GitHub Issues](docs/06-backlog-and-issues.md)**: Ready-to-execute engineering backlog with acceptance criteria and UX gap mitigations.
+6. **[06 — Epics, Backlog & GitHub Issues](docs/06-backlog-and-issues.md)**: Engineering backlog with acceptance criteria.
+7. **[07 — Threat Model, Trust Boundaries & Known Limits](docs/07-threat-model-and-limits.md)**: What is protected, who is still trusted, the corrections made to the original design, and the claims the project does not make. **Start here.**
+8. **[08 — Why Polkadot JAM](docs/08-why-polkadot-jam.md)**: What JAM genuinely adds to the control plane, what it does not provide yet, the alternatives compared, and what that means for the plan.
 
 ---
 
@@ -73,9 +85,12 @@ vercel --prod   # Deploy to production
 
 ## Capturing Waitlist Signups (`POST /api/waitlist`)
 
-Every waitlist signup captures the user's email, current email provider (`gmail`, `outlook`, `icloud`, `other`), custom-domain ownership, and preferred model (`stake-dot`, `fiat-sub`, `b2b-team`, `run-node`).
+Every waitlist signup captures the email, current email provider (`gmail`, `outlook`, `icloud`, `other`), custom-domain ownership, and what brings the person here (`fiat-sub`, `stake-dot`, `b2b-team`, `run-node`, `invest`, `contribute`). The investor and developer buttons on the page open the same form with `invest` or `contribute` preselected.
 
-Out of the box, signups emit structured `[ZEROMX_WAITLIST]` JSON entries to **Vercel Logs**. For permanent storage + instant alerts, configure **any** of the following optional Environment Variables in Vercel:
+> [!IMPORTANT]
+> **Configure at least one storage backend before sharing the link.** Vercel runtime logs expire, so they are not a waitlist. If no backend below stores the entry, the endpoint answers `503` and the form shows an error, instead of confirming a signup that was never saved.
+
+Configure **any** of the following Environment Variables in Vercel:
 
 1. **Vercel Marketplace Upstash Redis (Recommended, 1-click free tier):**
    - In your Vercel project dashboard, go to **Storage -> Create Database -> Upstash Redis** and link it to the project (`KV_REST_API_URL` + `KV_REST_API_TOKEN` or `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` are injected automatically). Signups are stored deduplicated under `zeromx:waitlist:entries`.

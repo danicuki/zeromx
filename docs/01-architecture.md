@@ -1,26 +1,34 @@
 # 01 — System Architecture
 
+> Read [07 — Threat Model, Trust Boundaries & Known Limits](07-threat-model-and-limits.md) alongside this document. It defines what the system protects, who is still trusted, and which claims are off limits.
+
 ## 1. Executive Summary & Core Thesis
 
-Privacy-focused email providers (e.g., Proton Mail, Tuta) suffer from a structural adoption barrier: **the Island Effect**. Even privacy-conscious professionals frequently churn back to Google Workspace or Microsoft 365 because:
+Privacy-focused email providers (e.g., Proton Mail, Tuta) suffer from a structural adoption barrier: **the Island Effect**. Even privacy-conscious people drift back to Gmail or Outlook because:
 
-1. **Identity Lock-in (IdP / SSO):** Corporate accounts on Google or Microsoft act as the federated Identity Provider across dozens of SaaS tools and cannot be abandoned.
-2. **Multi-Inbox Fatigue:** Running a separate encrypted email app on desktop and mobile creates daily friction ("yet another inbox to check").
-3. **Ecosystem & AI Friction:** Siloed encrypted providers break standard OAuth workflows, automation pipelines, and emerging **Model Context Protocol (MCP)** integrations.
-4. **Negative Value Perception:** Users pay $5–$12/month to experience *more* friction while already owning free or corporate-subsidized cloud storage.
+1. **Habit and tooling:** years of filters, labels, shortcuts, integrations, and muscle memory live in the existing webmail.
+2. **Multi-inbox fatigue:** a separate encrypted mail app on desktop is one more inbox to check.
+3. **Ecosystem and AI friction:** siloed encrypted providers break automation pipelines and **Model Context Protocol (MCP)** integrations.
+4. **Negative value perception:** users pay $5–$12/month for *more* friction while already owning free or subsidized cloud storage.
+5. **Identity lock-in (B2B only):** companies cannot leave Google Workspace or Microsoft 365 because those accounts are the Identity Provider for every other tool. This matters for the enterprise gateway, not for the individual product.
 
-At the same time, placing a **centralized SaaS encryption proxy** in front of Gmail or Outlook fails the sovereignty test: users merely trade trust in Google/Microsoft for trust in a smaller proxy company that sees all inbound and outbound mail in plaintext RAM.
+A **centralized SaaS encryption proxy** in front of Gmail or Outlook only moves the trust: the proxy company sees all inbound and outbound mail in plaintext RAM.
 
-**ZeroMX solves both sides simultaneously:**
-- **Universal Provider Compatibility:** Any existing mailbox (**Gmail, Google Workspace, Outlook / Microsoft 365, iCloud Mail, Fastmail, or generic IMAP**) becomes a **dumb, free ciphertext store**. The user's only prerequisite is owning a custom domain (`@yourdomain.com`).
-- **Decentralized Zero-Trust Infrastructure:** Autonomous **Blind MX Relays** run inside hardware-encrypted **Trusted Execution Environments (TEEs)** whose binary measurements, TLS keys, staking bonds, and anti-spam proofs are verified on-chain by a **Polkadot JAM Service** (RISC-V PVM), verified client-side via an embedded **Smoldot** P2P light client.
+**ZeroMX addresses both sides:**
+- **Your mailbox becomes a ciphertext store.** Mail sent to your custom domain (`@yourdomain.com`) is sealed to your key before it reaches your mailbox provider. The first supported vault is **Gmail on desktop Chrome**. Outlook, iCloud, Fastmail and generic IMAP follow.
+- **The relay is constrained, not trusted blindly.** **Blind MX Relays** run in attested **confidential VMs** whose measurements, keys, and operators are recorded in a public control plane, designed to run as a **Polkadot JAM Service**. Trust is minimized and every remaining trust point is named in [07](07-threat-model-and-limits.md).
+
+**What this does not do:** it does not hide mail from your correspondent's provider, and it does not make relay operators mathematically unable to read legacy mail. See [07, section 2](07-threat-model-and-limits.md).
 
 ---
 
-## 2. Strict Separation: Data Plane vs. Polkadot JAM Control Plane
+## 2. Strict Separation: Data Plane vs. Control Plane
 
 > [!IMPORTANT]
-> **Plaintext email bytes NEVER enter Polkadot JAM.** Because JAM validators auditing a core (`Guarantee` / `Assure` / `Audit`) and the Data Availability (DA) grid must inspect `Refine` work-package inputs for deterministic verification, sending raw emails into JAM would leak plaintext to validators. Instead, JAM acts strictly as the **cryptographic control, attestation, identity, and anti-spam verification plane**.
+> **Plaintext email bytes never enter the control plane.** JAM validators and the Data Availability layer must inspect `Refine` work-package inputs, so sending email into JAM would leak it to validators. The control plane only handles keys, attestations, operator records, and quota accounting.
+
+> [!NOTE]
+> **JAM is not on the critical path for the first releases.** JAM is not yet live on mainnet and has no light client. v0 and v1 use a witnessed append-only transparency log with the same data model, then migrate to a JAM service. See [07, section 7](07-threat-model-and-limits.md).
 
 ```mermaid
 flowchart TB
@@ -28,43 +36,43 @@ flowchart TB
         LegacySender["Legacy Sender (Bank, Hospital, Client)"]
     end
 
-    subgraph DataPlane["Autonomous SMTP Relay Network (Data Plane)"]
-        IngressTEE["Blind MX Ingress Node (AMD SEV-SNP / Intel TDX Enclave)"]
-        EgressTEE["Reputed SMTP Egress Node (TEE + Clean IP Reputation Pool)"]
+    subgraph DataPlane["Relay Network (Data Plane)"]
+        IngressTEE["Blind MX Ingress (AMD SEV-SNP / Intel TDX Confidential VM)"]
+        EgressTEE["SMTP Egress (Confidential VM + Managed IP Reputation)"]
     end
 
-    subgraph ControlPlane["Polkadot JAM Service (Control & Proof Plane)"]
-        Refine["JAM Refine (RISC-V PVM): Verifies Silicon TEE Quotes + ZK RLN Proofs"]
-        Accumulate["JAM Accumulate: Sovereign Key Transparency + Operator Stake & Slashing"]
+    subgraph ControlPlane["Control Plane (Transparency Log, then Polkadot JAM Service)"]
+        Refine["Verify: Attestation Quotes, Key Updates, Quota Proofs"]
+        Accumulate["Record: Key Directory, Operator Registry, Measurement Allowlist"]
     end
 
-    subgraph DumbVault["User's Existing Mailbox (Gmail / Outlook / iCloud / IMAP)"]
-        CloudStore["Inbox & Sent Folders (Stores Padded Ciphertext Blobs Only)"]
+    subgraph DumbVault["Your Existing Mailbox (Gmail first)"]
+        CloudStore["Inbox (Stores Padded Ciphertext Only)"]
     end
 
-    subgraph UserDevice["User Devices (Desktop Browser / Mobile Companion)"]
-        Smoldot["Smoldot Wasm Light Client (Trustless P2P State Proofs)"]
-        LocalEngine["Client Engine (Passkey Keys + Local SQLite FTS5 + Local MCP Server)"]
+    subgraph UserDevice["Your Devices (Desktop Extension / Mobile App)"]
+        Verifier["Directory Verifier (Inclusion + Consistency Proofs)"]
+        LocalEngine["Client Engine (Passkey Keys + Local Search + Local MCP Server)"]
     end
 
-    LegacySender -->|"1. SMTP + STARTTLS to @yourdomain.com MX"| IngressTEE
-    IngressTEE -.->|"Hardware Attestation Quote"| Refine
+    LegacySender -->|"1. SMTP + TLS to MX of yourdomain.com (MTA-STS / DANE pinned)"| IngressTEE
+    IngressTEE -.->|"Attestation Quote"| Refine
     Refine --> Accumulate
-    Accumulate -.->|"Authenticated Public Key Lookup"| IngressTEE
-    IngressTEE -->|"2. Opaque Encrypted MIME Envelope"| CloudStore
-    CloudStore <-->|"3. Syncs Ciphertext Envelopes"| LocalEngine
-    Smoldot <-->|"Verifies Key & Vault Roots P2P"| Accumulate
-    Smoldot --> LocalEngine
-    LocalEngine -->|"4. Encrypted Outbound + ZK RLN Quota Proof"| EgressTEE
-    EgressTEE -.->|"Verifies Anonymous Quota"| Refine
-    EgressTEE -->|"5. Delegated DKIM-Signed SMTP"| LegacySender
+    Accumulate -.->|"Verified Public Key Lookup"| IngressTEE
+    IngressTEE -->|"2. Sealed + Signed Envelope"| CloudStore
+    CloudStore <-->|"3. Ciphertext Read From Webmail"| LocalEngine
+    Verifier <-->|"Verifies Key + Relay Records"| Accumulate
+    Verifier --> LocalEngine
+    LocalEngine -->|"4. Client-DKIM-Signed Message + Quota Token"| EgressTEE
+    EgressTEE -->|"5. SMTP Delivery, Bytes Unmodified"| LegacySender
+    LocalEngine -->|"4b. Sent Copy Sealed To Self"| IngressTEE
 ```
 
 ---
 
 ## 3. End-to-End Protocol Flows
 
-### Flow A — Inbound Legacy SMTP (World -> Your Gmail / Outlook)
+### Flow A — Inbound Legacy SMTP (World -> Your Mailbox)
 
 When an external sender who knows nothing about ZeroMX (e.g., a hospital or bank) sends an email to `contact@yourdomain.com`:
 
@@ -72,73 +80,84 @@ When an external sender who knows nothing about ZeroMX (e.g., a hospital or bank
 sequenceDiagram
     autonumber
     participant S as "Legacy Sender (Bank / Hospital)"
-    participant TEE as "Autonomous Blind MX (TEE Enclave)"
-    participant JAM as "Polkadot JAM (PVM)"
-    participant Box as "Gmail / Outlook (Blind Disk)"
-    participant U as "User Client (Browser / App)"
+    participant TEE as "Blind MX (Confidential VM)"
+    participant CP as "Control Plane"
+    participant Box as "Gmail (Ciphertext Store)"
+    participant U as "Your Client (Extension / App)"
 
-    Note over TEE,JAM: Pre-registration: CPU silicon signs binary measurement + enclave TLS pubkey.<br/>JAM Refine verifies AMD/Intel hardware quote and activates node stake.
+    Note over TEE,CP: Pre-registration: the CPU signs the binary measurement and the VM-born TLS + signing keys.<br/>The control plane verifies the quote and the operator's admission record.
 
-    S->>TEE: Connects over TLS to MX of @yourdomain.com
-    TEE->>JAM: Reads certified HPKE/PGP public key for @yourdomain.com
-    Note over TEE: In encrypted RAM (~3ms):<br/>1. Validates SPF/DKIM/DMARC + Rspamd score<br/>2. Seals real From, Subject, Body & Attachments<br/>3. Pads to fixed bucket & zeroes RAM
+    S->>TEE: Connects over TLS to the MX of yourdomain.com
+    TEE->>CP: Reads verified public key for yourdomain.com
+    Note over TEE: In encrypted RAM:<br/>1. Validates SPF/DKIM/DMARC + spam score<br/>2. Seals real From, Subject, Body, Attachments<br/>3. Pseudonymizes Message-ID / References<br/>4. Pads (Padmé), signs envelope, zeroes RAM
     TEE->>Box: Delivers opaque MIME (From: relay-3d@..., Subject: 🔒 Thread #a72f91)
-    Note over Box: Google/Microsoft threads conversation cleanly<br/>without knowing sender identity, subject, or body.
-    Box->>U: Fetches encrypted message blob
-    U->>JAM: Smoldot verifies key transparency root P2P
-    Note over U: Passkey (WebAuthn PRF) unlocks private key;<br/>UI renders real sender/subject/body inline,<br/>updates local SQLite FTS5 & exposes to Local MCP.
+    TEE-->>U: Sealed notification preview via platform push (mobile)
+    Note over Box: The provider threads the conversation<br/>without sender identity, subject, or body.
+    Box->>U: Ciphertext shown in webmail
+    U->>CP: Verifies key record + relay signature
+    Note over U: Passkey (WebAuthn PRF) unlocks the private key.<br/>UI renders real sender/subject/body in an isolated frame,<br/>updates the local index, exposes it to the Local MCP server.
 ```
+
+Step 1 is only as safe as the sender's TLS validation. Every onboarded domain publishes MTA-STS and DANE records pinned to relay keys. See [07, section 5](07-threat-model-and-limits.md).
 
 ### Flow B — Outbound Reply Without Draft or Sent Leaks
 
-Typing directly inside Gmail or Outlook's native compose box leaks plaintext drafts to cloud servers every few seconds via background XHR saves. ZeroMX prevents both draft and `Sent`-folder leaks:
+Typing inside Gmail's native compose box uploads plaintext drafts every few seconds. ZeroMX prevents both draft and Sent-folder leaks:
 
-1. **Isolated Shadow Composer:** Clicking *Reply* opens a sandboxed Shadow DOM / iframe composer inside the webmail UI. Drafts are encrypted locally with the user's own public key before storage.
-2. **Anonymous Anti-Spam Quota Proof (`RLN`):** The client generates a Zero-Knowledge Rate-Limiting Nullifier proof against the latest JAM epoch root, proving the sender holds valid send quota without linking their identity to the recipient.
-3. **Egress Enclave Dispatch:** The outbound payload is encrypted directly to a high-reputation **Egress TEE**, which unwraps it in encrypted RAM, signs the message using a delegated DKIM selector (`zmx1._domainkey.yourdomain.com`), delivers over TLS to the recipient's MX, and wipes RAM.
-4. **Encrypted Thread Continuity:** Simultaneously, the client appends a self-encrypted copy (matching the deterministic outer thread token `🔒 Thread #a72f91` and `References` header) into Gmail/Outlook's `Sent` folder so the entire conversation remains threaded in one place.
+1. **Isolated composer.** Clicking *Reply* opens a composer inside a cross-origin **extension frame** (`chrome-extension://…`). The webmail page's scripts cannot read it. A Shadow DOM alone is not a security boundary and is used only for styling the mount point. Drafts are sealed locally to the user's own key.
+2. **Client-side DKIM.** The client signs the message with the domain's DKIM key, which was generated on the device. The relay never holds a key that could forge mail from your domain.
+3. **Quota token.** The client attaches a signed per-account quota token. The egress relay checks it and refuses to send without one. (Anonymous zero-knowledge rate limiting replaces this in the permissionless phase.)
+4. **Egress dispatch.** The message is encrypted to an attested egress relay, which unwraps it in encrypted RAM, delivers the unmodified bytes over TLS to the recipient's MX, and wipes RAM.
+5. **Sent copy to self.** The client seals a copy to its own key and submits it through ingress. It arrives in the mailbox like any inbound envelope and threads through the pseudonymous `References` chain. **No mailbox API permission is required.**
 
-### Flow C — Native `ZeroMX <-> ZeroMX` (100% Mathematical E2EE)
+### Flow C — Native `ZeroMX <-> ZeroMX` (End-to-End)
 
-When both sender (`@alice-domain.com`) and recipient (`@bob-domain.com`) have keys registered in the ZeroMX JAM Service:
-1. Alice's embedded `Smoldot` client discovers Bob's authenticated public key directly from Polkadot JAM state.
-2. Alice's browser encrypts the message **end-to-end directly to Bob's public key before a single byte leaves her device**.
-3. Even the hardware enclave CPU on the relay never sees plaintext — achieving **Signal-grade mathematical confidentiality** right inside Gmail and Outlook.
+When both sender (`@alice-domain.com`) and recipient (`@bob-domain.com`) have keys in the directory:
+1. Alice's client finds Bob's verified public key in the directory.
+2. Alice's client encrypts the message **directly to Bob's key before it leaves her device**.
+3. No relay CPU ever holds the plaintext. Confidentiality rests on the cipher suite and on the two endpoints, not on hardware or operators.
+
+There is no forward secrecy for stored mail: a stolen long-term key opens archived messages for its key epoch. See [07, L5](07-threat-model-and-limits.md).
 
 ---
 
-## 4. Autonomous SMTP Operators & Cryptographic Assurance Tiers
+## 4. Relay Operators & Assurance Tiers
 
 ### Why Operator Roles Are Split (Port 25 Reality)
 
-| Role | Hardware & Network Requirements | Economic & Security Mechanism on JAM |
+| Role | Requirements | Admission and economics |
 | :--- | :--- | :--- |
-| **Blind MX Ingress Nodes** | Clean static datacenter IP (Port 25 open) + AMD EPYC (`SEV-SNP`) or Intel Xeon (`TDX`) confidential VM + light stake. | Users list 3–4 independent operators in DNS `MX` priorities (`10`, `20`, `30`). Native SMTP retries guarantee high availability even if individual operators go offline. |
-| **Reputed SMTP Egress Nodes** | Warm, high-reputation IPv4/IPv6 ranges (clean Spamhaus/Google Postmaster standing) + TEE + high stake bond. | Protected from spammer hijacking by mandatory ZK `RLN` rate-limit proofs verified in JAM `Refine`. Cryptographic DKIM abuse proofs (`ZK-Email`) slash malicious senders. |
+| **Blind MX Ingress** | Static datacenter IP with port 25 open. AMD SEV-SNP or Intel TDX confidential VM. **No physical access to the host** (cloud or colocation with attestation-of-location). | Run by the ZeroMX team at launch, then by vetted, publicly listed operators. Users list several independent operators in `MX` priorities. SMTP retry gives availability if one is down. |
+| **SMTP Egress** | Warm, clean IP ranges with good standing at major receivers. Confidential VM. Same no-physical-access rule. | Higher bond. Per-account quota tokens protect IP reputation. Abuse reports revoke the offending account. |
 
-### How JAM Proves Operators Did Not Read Plaintext
+Operators cannot be permissionless while a single machine holds plaintext: confidential-computing hardware does not defend against an operator with physical access. See [07, section 4](07-threat-model-and-limits.md).
 
-Because legacy SMTP terminates TLS at the receiving `MX` server, pure software on a standard Linux VPS cannot stop a rogue host root administrator from dumping RAM. ZeroMX provides **three explicit cryptographic assurance tiers**:
+### What Attestation Does and Does Not Establish
 
-1. **Tier 1 — Native Peer-to-Peer (`ZeroMX <-> ZeroMX`):**
-   - **Mechanism:** Client-to-client `HPKE` encryption prior to network transmission, authenticated via JAM + `Smoldot`.
-   - **Trust Assumption:** **Zero trust** in operators, Big Tech, or CPU vendors (pure mathematics).
-2. **Tier 2 — Attested Confidential Hardware (`Legacy World -> ZeroMX`, Default):**
-   - **Mechanism:** Physical RAM is encrypted by the CPU memory controller (`AMD SEV-SNP` / `Intel TDX`). The enclave generates its own TLS private key in-enclave and signs a remote attestation quote binding the exact reproducible open-source binary hash (stateless encrypt-and-wipe, zero disk/logging syscalls). Polkadot JAM's **PVM (RISC-V)** verifies the CPU vendor certificate chain and measurement hash on-chain before admitting the node.
-   - **Trust Assumption:** **Zero trust in the human server operator or Big Tech**; relies only on the absence of a physical silicon backdoor in AMD/Intel confidential compute.
-3. **Tier 3 — Paranoid Multi-Party TLS (`Split 2PC-TLS Ingress`, High-Risk Domains):**
-   - **Mechanism:** The inbound TLS session key is secret-shared across **two independent operators running heterogeneous silicon** (e.g., Node A on Intel TDX + Node B on AMD SEV-SNP) assigned by JAM. Neither operator's enclave ever holds the full TLS session key to reconstruct plaintext alone.
-   - **Trust Assumption:** Resilient even against a single-vendor CPU vulnerability; requires simultaneous cross-jurisdiction, cross-silicon collusion.
+Legacy SMTP ends TLS at the receiving `MX`, so on an ordinary server the host administrator can dump RAM. ZeroMX defines **three assurance tiers**:
+
+1. **Tier 1 — Native end-to-end (`ZeroMX <-> ZeroMX`):**
+   - **Mechanism:** client-to-client hybrid `HPKE` encryption before transmission. Keys are authenticated through the directory.
+   - **Trust:** the endpoints, the cipher suite, the key directory's transparency guarantees, and the client software.
+2. **Tier 2 — Attested confidential hardware (`Legacy -> ZeroMX`, default):**
+   - **Mechanism:** RAM is encrypted by the CPU (`AMD SEV-SNP` / `Intel TDX`). The VM generates its TLS and signing keys internally and produces a quote binding them to the measurement of a reproducible open-source image with no disk or logging. The control plane verifies the vendor certificate chain and the measurement before admitting the relay.
+   - **Establishes:** which code booted, on genuine silicon, and that the operator has no software path to the plaintext.
+   - **Does not establish:** that nobody read the mail. It assumes the CPU vendor is honest and that nobody with physical access has attacked the machine.
+3. **Tier 3 — Split-trust ingress (`2PC-TLS`, high-risk domains):**
+   - **Mechanism:** the inbound TLS session key is secret-shared across **two operators on different silicon** (e.g., one Intel TDX, one AMD SEV-SNP). Neither holds the full session key.
+   - **Trust:** breaking it requires compromising both operators and both vendors at once. This tier is the precondition for opening the operator set.
 
 ---
 
-## 5. UX Gap Matrix (User-Perspective Friction & Architectural Solutions)
+## 5. UX Gap Matrix (User-Visible Friction & Design Answers)
 
-| # | User-Visible Friction | Root Cause | Architectural Solution |
+| # | User-Visible Friction | Root Cause | Design Answer |
 | :- | :--- | :--- | :--- |
-| **1** | **Mobile Push Notifications** show `🔒 Thread #a72f91` in official Gmail/Outlook iOS/Android apps | Mobile OS sandboxes prohibit browser extensions inside third-party native apps. | Ship a lightweight **Passkey Companion PWA/App** that decrypts push previews locally via FaceID/TouchID, plus optional user policy rules allowing low-sensitivity newsletters through in cleartext. |
-| **2** | **Server-Side Search Goes Blind** inside Gmail/Outlook | Big Tech servers only hold ciphertext and cannot index body or subject keywords. | Client maintains an encrypted local **SQLite Wasm (`FTS5`)** index in browser OPFS, synced across devices as encrypted delta blobs inside the user's own cloud storage and anchored against rollback via JAM Merkle roots. |
-| **3** | **Calendar Invites (`.ics`)** stop auto-adding to Calendar | Cloud parsers cannot inspect encrypted MIME attachments. | Extension/Companion parses decrypted `text/calendar` parts locally and renders a 1-click *Add to Google/Outlook Calendar* action. |
-| **4** | **Cloud AI / MCP Tools Break** | Cloud LLMs (Gemini/Copilot) only see ciphertext blocks. | Ship a **Local MCP Server (`zeromx-mcp`)** reading from the local decrypted index — turning a limitation into a major product advantage (sovereign AI over email). |
-| **5** | **Spam Filtering** cannot run post-encryption | Gmail/Outlook content filters see uniform encrypted armor. | Enclave runs `SPF`/`DKIM`/`DMARC` + `Rspamd` scoring in RAM *prior* to encryption and attaches an outer `X-ZeroMX-Spam-Bucket` header for inbox filtering rules. |
-| **6** | **Legacy `@gmail.com` / `@outlook.com` Mail** hits Big Tech MX first | Direct mail to `@gmail.com` resolves to Google's MX before any external relay. | Optional **Vault Sweeper** worker retroactively encrypts legacy archival mail at rest and deletes plaintext originals while assisting migration of key accounts to `@yourdomain.com`. |
+| **1** | **Phone.** The official Gmail/Outlook apps show `🔒 Thread #a72f91` and ciphertext. | Mobile platforms do not allow extensions inside other vendors' apps. | A **native ZeroMX mobile app**. The ingress relay seals a short preview to a device-bound notification key and sends it through the platform push service, so notifications show the real sender and subject. Users mute the provider app's notifications for the vault label. This *is* a second app on the phone, and the product says so. |
+| **2** | **Server-side search goes blind.** | The provider holds only ciphertext. | The client keeps an encrypted local **SQLite (`FTS5`)** index, synced across devices as encrypted blobs. Indexing the full archive needs read access to the mailbox (see row 7). |
+| **3** | **Calendar invites (`.ics`)** stop auto-adding. | Cloud parsers cannot read encrypted attachments. | The client parses decrypted `text/calendar` parts and offers a one-click add. |
+| **4** | **Cloud AI assistants break.** | Cloud LLMs see ciphertext. | A **Local MCP server (`zeromx-mcp`)** reads the local decrypted index for the user's own agents. |
+| **5** | **Spam filtering** cannot run after encryption. | Provider filters see uniform ciphertext. | The relay runs `SPF`/`DKIM`/`DMARC` and scoring before sealing and tags the outer envelope. This is weaker than a large provider's filter. **Per-sender aliases** (`bank@`, `shop-x@` on a catch-all domain) let users cut off a leaking address. |
+| **6** | **Mail to the legacy `@gmail.com` address** reaches the provider first. | It resolves to the provider's MX. | Guided migration of accounts to the custom-domain address. The at-rest sweeper is optional hygiene. |
+| **7** | **Mailbox API access is gated by the provider.** | Reading the full archive or writing to folders needs restricted OAuth scopes and a yearly security assessment that the provider controls. | Read, reply, and sent copies work **without any mailbox API** (webmail DOM plus sent-to-self). Full-archive indexing is an opt-in that uses the API or IMAP, and is budgeted as a gating item. |
+| **8** | **Owning a custom domain.** | Most people do not have one. | Onboarding registers one for the user at a registrar in the user's own name, or connects an existing one. |
