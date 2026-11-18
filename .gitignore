@@ -1,0 +1,28 @@
+# OS & Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Private media / local scratch (never commit personal audio or keys)
+*.m4a
+*.mp3
+*.ogg
+*.opus
+*.wav
+*.weba
+*.pem
+*.key
+*.asc
+
+# Dependencies & Build
+node_modules/
+target/
+dist/
+build/
+
+# Environment & Deployment
+.env
+.env.*
+.vercel/

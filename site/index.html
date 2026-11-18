@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZeroMX — Sovereign Email Inside Gmail or Outlook (Powered by Polkadot JAM)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a href="#" class="brand">
+        <span class="brand-mark">Z</span>
+        <span>ZeroMX</span>
+        <span class="brand-badge">Polkadot JAM</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#simulador" data-i18n="nav_sim">Inbox Simulator</a>
+        <a href="#arquitetura" data-i18n="nav_arch">How It Works</a>
+        <a href="#provas-jam" data-i18n="nav_proofs">Operators &amp; Proofs</a>
+        <a href="#onboarding" data-i18n="nav_onboard">Custom Domain</a>
+        <a href="#gaps" data-i18n="nav_gaps">UX Gap Radar</a>
+      </nav>
+      <div class="nav-right">
+        <div class="lang-switch" id="langSwitch" aria-label="Language selector">
+          <button class="lang-btn active" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="pt">PT</button>
+        </div>
+        <a href="#simulador" class="btn btn-primary" data-i18n="nav_cta">Try Live Demo</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <main>
+    <section class="hero" style="border-top: none;">
+      <div class="container">
+        <div class="eyebrow">
+          <span class="dot"></span>
+          <span data-i18n="hero_eyebrow">True Sovereignty + Zero-Friction UX • Any Email Provider</span>
+        </div>
+        <h1 data-i18n-html="hero_title">
+          Keep using <span class="gradient-text">Gmail or Outlook</span>.<br />
+          Strip away their power to read your life.
+        </h1>
+        <p class="hero-sub" data-i18n-html="hero_sub">
+          Point your custom domain (<code>@yourdomain.com</code>) to a decentralized network of blind MX nodes coordinated by <strong>Polkadot JAM</strong>.
+          Google and Microsoft become dumb, free ciphertext storage — while you read, search, reply, and run local AI/MCP agents without juggling "yet another email app".
+        </p>
+        <div class="hero-actions">
+          <a href="#simulador" class="btn btn-primary" data-i18n="hero_btn_primary">See What Big Tech Sees vs. What You See</a>
+          <a href="#provas-jam" class="btn btn-secondary" data-i18n="hero_btn_secondary">Who Runs SMTP &amp; How Is Privacy Proven?</a>
+        </div>
+
+        <div class="provider-strip">
+          <span data-i18n="hero_providers_label">Works with any destination inbox:</span>
+          <span class="provider-pill">📧 Gmail / Google Workspace</span>
+          <span class="provider-pill">📨 Outlook / Microsoft 365</span>
+          <span class="provider-pill">🍏 iCloud Mail</span>
+          <span class="provider-pill" data-i18n="hero_provider_imap">⚡ Fastmail / Any IMAP</span>
+        </div>
+
+        <div class="pillars-grid" style="text-align: left; margin-top: 52px;">
+          <div class="pillar-card">
+            <div class="pillar-icon">🧩</div>
+            <h3 data-i18n="pillar1_title">Zero "Island Effect"</h3>
+            <p data-i18n="pillar1_desc">No separate siloed email app to check. Your encrypted personal emails live inside the exact same inbox as your work accounts while keeping corporate SSO/IdP intact.</p>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-icon">🛡️</div>
+            <h3 data-i18n="pillar2_title">No Central Proxy Company</h3>
+            <p data-i18n="pillar2_desc">Unlike centralized alias proxies, there is no startup server to trust. SMTP edge nodes run inside hardware enclaves (TEEs) cryptographically attested on Polkadot JAM.</p>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-icon">🤖</div>
+            <h3 data-i18n="pillar3_title">Local MCP for Your AI Agents</h3>
+            <p data-i18n="pillar3_desc">Cloud AI (Gemini / Copilot) sees pure gibberish. Meanwhile, a built-in Local MCP server unlocks full semantic search and automation on your own machine for your own LLMs.</p>
+          </div>
+          <div class="pillar-card">
+            <div class="pillar-icon">💎</div>
+            <h3 data-i18n="pillar4_title">Big Tech Pays the Storage Bill</h3>
+            <p data-i18n-html="pillar4_desc">Because encrypted blobs sit inside your free 15 GB / 50 GB Gmail or Outlook storage, network cost is tiny — or <strong>$0/month forever</strong> via reversible DOT staking.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Simulator -->
+    <section id="simulador">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" data-i18n="sim_tag">01 // User Perspective</span>
+          <h2 data-i18n="sim_title">Live Inbox Simulator: Blind Cloud Server vs. Your Screen</h2>
+          <p data-i18n-html="sim_desc">
+            Switch between <strong>Gmail</strong> and <strong>Outlook</strong> below, toggle to the <strong>Big Tech Disk View</strong> to inspect what actually lands on their servers, and test local instant search and zero-leak replies.
+          </p>
+        </div>
+
+        <div class="sim-controls-bar">
+          <div class="control-group">
+            <span class="control-label" data-i18n="sim_provider_label">Your Provider:</span>
+            <div class="segmented" id="providerToggle">
+              <button class="seg-btn active" data-provider="gmail">Gmail / Workspace</button>
+              <button class="seg-btn" data-provider="outlook">Outlook / M365</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <span class="control-label" data-i18n="sim_view_label">Perspective:</span>
+            <div class="segmented" id="viewToggle">
+              <button class="seg-btn view-user active" data-view="user" data-i18n="sim_view_user">🟢 What YOU See (ZeroMX Active)</button>
+              <button class="seg-btn view-bigtech" data-view="bigtech" data-i18n="sim_view_bigtech">🔴 What GOOGLE / MICROSOFT Sees on Disk</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <button class="btn btn-secondary" id="mobilePreviewBtn" style="padding: 8px 13px; font-size: 0.83rem;" data-i18n="sim_mobile_btn">
+              📱 What About Mobile? (Inspect UX Gap)
+            </button>
+          </div>
+        </div>
+
+        <!-- Simulated Email Client -->
+        <div class="mail-window provider-gmail" id="mailWindow">
+          <div class="window-topbar">
+            <div class="window-brand">
+              <span class="provider-dot"></span>
+              <span id="providerTitle">Google Workspace — you@yourdomain.com</span>
+            </div>
+            <div class="search-wrapper">
+              <input
+                type="text"
+                id="inboxSearch"
+                class="search-input"
+                data-i18n-placeholder="sim_search_placeholder"
+                placeholder="🔍 Search emails (try: Sinai, wire, DOT, Acme)..."
+              />
+            </div>
+            <div id="extensionBadge" class="extension-pill active-shield">
+              ⚡ ZeroMX Active • Smoldot P2P + Passkey
+            </div>
+          </div>
+
+          <div id="statusBanner" class="status-banner banner-user">
+            <span id="statusBannerText">
+              <strong>User View:</strong> Senders, subjects, and bodies decrypted locally in 4ms via WebCrypto + local SQLite search index.
+            </span>
+            <span style="font-family: var(--font-mono); font-size: 0.76rem;" id="searchEngineStatus">
+              🔍 Search: Local Encrypted SQLite
+            </span>
+          </div>
+
+          <div class="mail-body-grid">
+            <!-- Left Sidebar -->
+            <aside class="mail-sidebar">
+              <button class="compose-btn" id="openComposeBtn" data-i18n="sim_compose_btn">✍️ Encrypted Compose</button>
+              <div class="folder-item active"><span data-i18n="folder_inbox">Inbox</span><span id="inboxCount">4</span></div>
+              <div class="folder-item"><span data-i18n="folder_starred">Starred</span><span>2</span></div>
+              <div class="folder-item"><span data-i18n="folder_sent">Sent (Ciphertext)</span><span>18</span></div>
+              <div class="folder-item"><span>_zeromx_index</span><span>sync</span></div>
+
+              <div class="account-tag-list">
+                <div class="account-tag-title" data-i18n="origins_title">Unified Sources</div>
+                <div class="account-chip" id="originPersonalChip">🛡️ <code>@yourdomain.com</code> (ZeroMX)</div>
+                <div class="account-chip" id="originWorkChip">🏢 <code>@acme.io</code> (Work IdP)</div>
+              </div>
+            </aside>
+
+            <!-- Message List -->
+            <div class="mail-list" id="mailList"></div>
+
+            <!-- Message Detail -->
+            <div class="mail-detail" id="mailDetail"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Architecture Step-by-Step -->
+    <section id="arquitetura">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" data-i18n="arch_tag">02 // Architecture Demystified</span>
+          <h2 data-i18n="arch_title">Follow an Email Step by Step (Click Any Stage)</h2>
+          <p data-i18n="arch_desc">
+            Inspect what happens across all 3 real-world scenarios — receiving legacy mail from banks/hospitals, replying without leaking drafts, and messaging another ZeroMX user.
+          </p>
+        </div>
+
+        <div class="flow-tabs" id="flowTabs">
+          <button class="flow-tab active" data-flow="inbound" data-i18n="flow_tab_inbound">1. Inbound Legacy Mail (Bank / Hospital → You)</button>
+          <button class="flow-tab" data-flow="outbound" data-i18n="flow_tab_outbound">2. Replying from Gmail / Outlook (You → World)</button>
+          <button class="flow-tab" data-flow="native" data-i18n="flow_tab_native">3. ZeroMX ↔ ZeroMX (Pure Mathematical E2EE)</button>
+        </div>
+
+        <div class="flow-stage">
+          <div class="flow-nodes-row" id="flowNodesRow"></div>
+          <div class="step-inspector" id="stepInspector"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deep Dive: Who operates SMTP & How JAM Proves Zero Access -->
+    <section id="provas-jam">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" data-i18n="proof_tag">03 // Sovereignty &amp; Port 25 Physics</span>
+          <h2 data-i18n="proof_title">Who Runs the SMTP Servers? And How Does JAM Prove Nobody Read Your Mail?</h2>
+          <p data-i18n-html="proof_desc">
+            Zero hand-waving: here is who operates the physical relays and the <strong>3 cryptographic assurance tiers</strong> achievable today with Polkadot JAM.
+          </p>
+        </div>
+
+        <div class="proof-grid" id="proofGrid"></div>
+      </div>
+    </section>
+
+    <!-- Onboarding & Universal Provider Compatibility -->
+    <section id="onboarding">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" data-i18n="onboard_tag">04 // Universal Onboarding</span>
+          <h2 data-i18n="onboard_title">Only Prerequisite: Owning a Custom Domain</h2>
+          <p data-i18n="onboard_desc">
+            Whether you live in Gmail, Google Workspace, Outlook 365, iCloud, or Fastmail, your custom domain becomes a sovereign cryptographic shield in 3 minutes.
+          </p>
+        </div>
+
+        <div class="onboarding-grid" id="onboardingGrid"></div>
+      </div>
+    </section>
+
+    <!-- Product GAP Radar -->
+    <section id="gaps">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" data-i18n="gaps_tag">05 // Critical Product Lens</span>
+          <h2 data-i18n="gaps_title">UX Gap Radar: Where Could This Break in Daily Life?</h2>
+          <p data-i18n-html="gaps_desc">
+            Looking strictly from a demanding user's perspective, blinding Gmail/Outlook introduces <strong>6 real-world friction points</strong> that the product design must solve head-on:
+          </p>
+        </div>
+
+        <div class="gaps-grid" id="gapsGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal: Secure Reply / Mobile Preview -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal-card" id="modalContent"></div>
+  </div>
+
+  <footer class="footer">
+    <div class="container" data-i18n="footer_text">
+      ZeroMX — Product Vision &amp; Interactive Architecture Prototype (Polkadot JAM + Blind MX + Provider-Agnostic)
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
