@@ -21,6 +21,8 @@ flowchart LR
 
 ## Phase 0 — Private Alpha (about 3 months)
 
+**Week-1 Go/No-Go Gate (`ZMX-000`):** Before building the extension or full relay stack, send 500–1,000 realistic Padmé-padded sealed MIME envelopes through an authenticated relay domain into live personal Gmail and Google Workspace accounts and measure spam-folder placement in Google Postmaster Tools. Confirm >99.5% inbox delivery (or lock in the IMAP-append fallback) before proceeding.
+
 **Goal:** prove the daily experience with real mail for a few dozen waitlist users, with honest labeling of what is and is not protected.
 
 - **Deliverables:**

@@ -8,17 +8,20 @@
   <meta name="theme-color" content="#f3efe6" />
   <meta name="color-scheme" content="light" />
 
+  <link rel="canonical" href="https://zeromx.cukier.xyz/" />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://zeromx.cukier.xyz/" />
   <meta property="og:site_name" content="ZeroMX" />
   <meta property="og:title" content="ZeroMX — Keep your inbox. Make it blind." />
   <meta property="og:description" content="Mail sent to your domain is sealed before it reaches Gmail. Google stores ciphertext. You keep reading and replying in the same tab." />
-  <meta property="og:image" content="/og.png" />
+  <meta property="og:image" content="https://zeromx.cukier.xyz/og.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:creator" content="@danicuki" />
   <meta name="twitter:title" content="ZeroMX — Keep your inbox. Make it blind." />
   <meta name="twitter:description" content="Mail sent to your domain is sealed before it reaches Gmail. Google stores ciphertext. You keep reading and replying in the same tab." />
-  <meta name="twitter:image" content="/og.png" />
+  <meta name="twitter:image" content="https://zeromx.cukier.xyz/og.png" />
 
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="preload" href="fonts/instrument-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin />
@@ -42,7 +45,6 @@
         <a href="#how" data-i18n="nav_how">How it works</a>
         <a href="#demo" data-i18n="nav_demo">Demo</a>
         <a href="#trust" data-i18n="nav_trust">Trust</a>
-        <a href="#investors" data-i18n="nav_investors">Investors</a>
         <a href="#developers" data-i18n="nav_developers">Developers</a>
       </nav>
       <div class="nav-right">
@@ -62,7 +64,7 @@
         <div class="hero-copy">
           <p class="chip">
             <span class="dot"></span>
-            <span data-i18n="hero_chip">Design stage. Alpha invites go to the waitlist first.</span>
+            <span data-i18n="hero_chip">Private alpha opening soon · Gmail on desktop Chrome first</span>
           </p>
           <h1 data-i18n-html="hero_title">Keep your inbox.<br /><em>Make it blind.</em></h1>
           <p class="hero-sub" data-i18n="hero_sub">
@@ -88,7 +90,6 @@
             <text font-size="15" fill="currentColor"><textPath href="#pmArc" textLength="456" lengthAdjust="spacing">SEALED BEFORE STORAGE • ZEROMX POST •</textPath></text>
             <circle cx="100" cy="100" r="22" fill="none" stroke="currentColor" stroke-width="5" />
             <path d="M82 118L118 82" stroke="currentColor" stroke-width="5" stroke-linecap="round" />
-            <path d="M8 78c14-7 28 7 42 0M8 92c14-7 28 7 42 0M8 106c14-7 28 7 42 0M150 78c14-7 28 7 42 0M150 92c14-7 28 7 42 0M150 106c14-7 28 7 42 0" fill="none" stroke="currentColor" stroke-width="2" opacity="0" />
           </svg>
         </div>
       </div>
@@ -131,7 +132,7 @@
             <p data-i18n="pillar3_desc">A local encrypted index gives instant search. A local MCP server lets your own agents work with your mail, on your machine, with your permission.</p>
           </div>
           <div class="pillar-card">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.700-7-5.500-7-10V6l7-3z" /><path d="M9 12l2 2 4-4" /></svg>
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z" /><path d="M9 12l2 2 4-4" /></svg>
             <h3 data-i18n="pillar4_title">Built to be checked</h3>
             <p data-i18n="pillar4_desc">Open-source relay images with reproducible builds. Keys and relay measurements in a public append-only log, designed to run on Polkadot JAM.</p>
           </div>
@@ -155,11 +156,11 @@
             <span class="control-label" data-i18n="sim_view_label">View</span>
             <div class="segmented" id="viewToggle" role="group">
               <button type="button" class="seg-btn view-user active" data-view="user" aria-pressed="true">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.500-7 10-7 10 7 10 7-3.500 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
                 <span data-i18n="sim_view_user">What you see</span>
               </button>
               <button type="button" class="seg-btn view-bigtech" data-view="bigtech" aria-pressed="false">
-                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3" /><path d="M4 6v6c0 1.700 3.600 3 8 3s8-1.300 8-3V6" /><path d="M4 12v6c0 1.700 3.600 3 8 3s8-1.300 8-3v-6" /></svg>
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3" /><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6" /><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6" /></svg>
                 <span data-i18n="sim_view_bigtech">What the provider stores</span>
               </button>
             </div>
@@ -298,23 +299,6 @@
       </div>
     </section>
 
-    <!-- Investors -->
-    <section id="investors" class="band-manila">
-      <div class="container">
-        <div class="section-header">
-          <span class="section-tag" data-i18n="inv_tag">For investors</span>
-          <h2 data-i18n="inv_title">Private email lost because it asked people to move. This doesn’t.</h2>
-          <p data-i18n="inv_lede">Encrypted mail has a proven market and a hard ceiling: most people will not leave the inbox they have used for fifteen years. ZeroMX sells the privacy without the move.</p>
-        </div>
-        <div class="stat-row" id="invStats"></div>
-        <div class="point-grid" id="invPoints"></div>
-        <div class="band-cta">
-          <p data-i18n-html="inv_stage"></p>
-          <button type="button" class="btn btn-ink btn-lg" id="invCtaBtn" data-i18n="inv_cta">Start a conversation</button>
-        </div>
-      </div>
-    </section>
-
     <!-- Developers -->
     <section id="developers" class="band-ink">
       <div class="container">
@@ -381,6 +365,23 @@
         <div class="faq-list" id="faqList"></div>
       </div>
     </section>
+
+    <!-- Built by -->
+    <section class="founder-band" aria-label="Founder">
+      <div class="container founder-card">
+        <div class="founder-copy">
+          <div class="founder-kicker" data-i18n="founder_kicker">Built in the open</div>
+          <h3 data-i18n="founder_title">Started by Daniel Cukier</h3>
+          <p data-i18n="founder_bio">Systems engineer based in Portugal, working on Polkadot JAM and privacy infrastructure. Building ZeroMX so private email stops forcing people out of their daily workflow.</p>
+        </div>
+        <div class="founder-links">
+          <a href="https://daniel.cukier.xyz" target="_blank" rel="noopener">daniel.cukier.xyz</a>
+          <a href="https://github.com/danicuki" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://x.com/danicuki" target="_blank" rel="noopener">X / @danicuki</a>
+          <a href="/investors" data-i18n="nav_investors">Investors</a>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- Modal: compose, phone preview, waitlist -->
@@ -398,9 +399,10 @@
         </svg>
         <span>ZeroMX</span>
       </span>
-      <p data-i18n="footer_text">ZeroMX is a design-stage project. This page is an interactive prototype, not a shipped product.</p>
-      <p class="footer-built" data-i18n="footer_built">Control plane designed for Polkadot JAM.</p>
+      <p data-i18n="footer_text">Private alpha opening soon. Built by Daniel Cukier in Portugal.</p>
+      <p class="footer-built" data-i18n="footer_built">No trackers. No cookies. Control plane designed for Polkadot JAM.</p>
       <nav class="footer-links" aria-label="Footer">
+        <a href="/investors" data-i18n="nav_investors">Investors</a>
         <a href="#roadmap" data-i18n="road_tag">Roadmap</a>
         <a href="#faq" data-i18n="faq_tag">Questions</a>
         <a href="#waitlist" data-i18n="wl_tag">Early access</a>
@@ -410,5 +412,6 @@
 
   <script src="i18n.js" defer></script>
   <script src="app.js" defer></script>
+  <script src="/_vercel/insights/script.js" defer></script>
 </body>
 </html>

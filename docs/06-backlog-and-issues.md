@@ -13,7 +13,7 @@ This document breaks the ZeroMX roadmap into **8 Epics** and **36 concrete engin
 | **EPIC-3** | Browser Extension, Isolated Composer & Desktop Bridge | Phase 0–1 | Gmail/Outlook cross-origin iframe decryptor, zero-leak reply, local IMAP/SMTP Bridge for desktop mail apps |
 | **EPIC-4** | Control Plane: Transparency Log, JAM Service & Directory Client | Phase 1–2 | PVM RISC-V `Refine`/`Accumulate`, key transparency, TEE & RLN |
 | **EPIC-5** | Local Encrypted Search & MCP Server | Phase 1 | `wa-sqlite` `FTS5`, cloud delta sync, `zeromx-mcp` local AI |
-| **EPIC-6** | Mobile Companion & UX Gap Closers | Phase 2 | FaceID push decryptor PWA, `.ics` calendar helper, Vault Sweeper |
+| **EPIC-6** | Mobile Companion & UX Gap Closers | Phase 1–2 | Native iOS/Android app with relay-sealed push previews, `.ics` calendar helper, Vault Sweeper |
 | **EPIC-7** | Onboarding, DNS Automation & Stake-to-Use | Phase 0–2 | Cloudflare 1-click DNS, subscriptions, optional DOT staking |
 | **EPIC-8** | Trust Minimization & Release Integrity | Phase 0–2 | SMTP pinning, envelope signatures, transparency log, release signing, operator admission |
 
@@ -22,6 +22,10 @@ This document breaks the ZeroMX roadmap into **8 Epics** and **36 concrete engin
 ## Detailed Issue Backlog
 
 ### EPIC-1: Cryptographic Core & MIME Envelope (`crates/zeromx-crypto`)
+
+- **`ZMX-000` [P0 Week-1 Blocker] — Gmail & Workspace Deliverability / Anti-Abuse Smoke Test**
+  - **Scope:** Before building full client/relay infrastructure, send 500–1,000 realistic Padmé-padded sealed MIME envelopes (testing opaque randomized `relay-*@` vs. stable authenticated sender `vault@in.zeromx.network` + user allow-filter + `ARC`/`DKIM` alignment) into real personal Gmail and Google Workspace test inboxes.
+  - **Acceptance Criteria:** >99.5% inbox placement (zero silent drops or spam-folder blacklisting) measured in Google Postmaster Tools over 7 days; written go/no-go on SMTP forwarding vs. IMAP append.
 
 - **`ZMX-001` [P0] — Implement `ZeroMX/1.0` Hybrid HPKE Envelope Library (Rust + Wasm)**
   - **Scope:** Implement `seal_mime()` and `open_mime()` using `HPKE` with the hybrid `X25519` + `ML-KEM-768` KEM, `HKDF-SHA256`, and `ChaCha20Poly1305`, compiling to both native x86_64 and `wasm32-unknown-unknown`. No classical-only mode.

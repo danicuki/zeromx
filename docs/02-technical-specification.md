@@ -28,7 +28,7 @@ Standard PGP leaves `From:` and `Subject:` exposed in outer headers, allowing Bi
    - **Outer `Subject:`** `🔒 Thread #<thread_token>` where:
      $$\text{thread\_token} = \text{Hex}\big(\text{HMAC-SHA256}(K_{\text{thread}}, \text{CanonicalThreadRoot})[0..5]\big)$$
      Here $K_{\text{thread}}$ is a per-mailbox tagging key published in the mailbox's directory record, so relays and the owner's client compute the same token. The displayed token uses 6 bytes to keep collisions negligible.
-   - **Outer `Message-ID` / `In-Reply-To` / `References`:** **always pseudonymized** as `<Hex(HMAC-SHA256(K_thread, original_id))@t.zeromx.network>`. Real Message-IDs embed the sender's domain (`<…@mail.chase.com>`), so preserving them would tell the provider who writes to you. The mapping is deterministic, so every reply maps to the same chain and the webmail groups the conversation. Real IDs are kept in the protected inner headers.
+   - **Outer `Message-ID` / `In-Reply-To` / `References`:** **always pseudonymized** as `<Hex(HMAC-SHA256(K_thread, original_id))@t.zeromx.network>`. Real Message-IDs embed the sender's domain (`<…@mail.chase.com>`), so preserving them would tell the provider who writes to you. The mapping is deterministic, so every reply maps to the same chain and the webmail groups the conversation. When legacy senders (banks, Exchange, ticket systems) strip `References`/`In-Reply-To` on reply, the relay falls back to deriving the thread token from `HMAC-SHA256(K_thread, canonicalize_subject(Subject))` so replies still group cleanly. Real IDs are kept in the protected inner headers.
    - **Known residual:** $K_{\text{thread}}$ is public, so a party that already knows a real `Message-ID` can confirm that a stored envelope belongs to that thread. A provider only knows the ID when one of its own users sent the message, in which case it already holds the plaintext.
 
 ### 1.3 Traffic-Analysis Resistance (Size Padding & Timing Jitter)
@@ -96,7 +96,7 @@ Written in memory-safe Rust (`tokio` + `rustls`), compiled via deterministic Nix
 
 1. **Zero Persistent Storage:** Booted with rootfs as read-only measured image in RAM; swap disabled; `mlockall(MCL_CURRENT | MCL_FUTURE)` enforced; core dumps disabled at kernel level.
 2. **In-Enclave Key Generation:** On boot, the daemon generates TLS (`ACME TLS-ALPN-01` inside the VM), envelope-signing, and `HPKE` keypairs in encrypted RAM and submits its attestation quote to the control plane. The host OS cannot extract the TLS private key.
-   - **Sender-side pinning:** a public CA certificate does not stop whoever controls the MX hostname's DNS from obtaining their own. Each user domain therefore publishes **MTA-STS (`enforce`)** and **DANE `TLSA`** records pinned to relay keys, plus **TLS-RPT**. See [07, section 5](07-threat-model-and-limits.md).
+   - **Sender-side pinning & DANE rollover:** a public CA certificate does not stop whoever controls the MX hostname's DNS from obtaining their own. Each user domain therefore publishes **DNSSEC** on its `MX` records, **MTA-STS (`enforce`)**, and **TLS-RPT**, while ZeroMX's DNSSEC-signed MX zone publishes **DANE `TLSA`** records (`_25._tcp.mx*.zeromx.network`) pinned to relay keys. To prevent DANE hard-failures across DNS TTL windows on VM reboot, relay TLS keys are either derived via hardware sealing bound strictly to the enclave `MEASUREMENT` (`SNP_GET_DERIVED_KEY`) or rolled over with dual-pinned `current + standby` `TLSA` records staged `2x TTL` ahead of rotation. See [07, section 5](07-threat-model-and-limits.md).
    - **No long-term user secrets:** the relay holds no per-domain key. Outbound DKIM is signed by the client (RSA-2048, because major receivers do not verify Ed25519 DKIM), and the relay forwards the signed bytes unmodified.
 3. **Pre-Encryption Anti-Spam Pipeline (RAM):**
    - Validates `SPF`, `DKIM`, `DMARC`, and `ARC` signatures.
@@ -125,6 +125,7 @@ Passkey Hardware Authenticator (FaceID / TouchID / YubiKey)
 ```
 
 - **Device Loss Protection:** On onboarding, the root secret is split into a $2\text{-of-}3$ Shamir recovery share set (Device Passkey + Printable Recovery Kit + Optional Encrypted Guardian Share).
+- **WebAuthn RP-ID & Cross-Platform Fallback:** Because a Passkey registered under RP ID `zeromx.io` cannot be directly asserted from a `chrome-extension://<id>` origin, key unlock runs through a dedicated auth origin (`unlock.zeromx.io` -> verified extension messaging bridge) that releases only the derived session key into extension memory. For browsers or authenticators that do not yet support the `WebAuthn PRF` extension (e.g., Firefox or certain Linux/third-party managers), onboarding provides an Argon2id-hardened local passphrase option protecting the same root secret.
 - **Passkey Provider Matters:** a synced passkey is only as private as its sync provider's encryption. Onboarding recommends a hardware security key or a device-bound passkey for the root, and states the trade-off if the user picks a synced one.
 
 ### 4.2 Local Encrypted Search (`SQLite Wasm` + Cloud Blob Sync)

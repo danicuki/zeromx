@@ -13,7 +13,7 @@ const TRANSLATIONS = {
     nav_developers: 'Developers',
     nav_cta: 'Join waitlist',
 
-    hero_chip: 'Design stage. Alpha invites go to the waitlist first.',
+    hero_chip: 'Private alpha opening soon · Gmail on desktop Chrome first',
     hero_title: 'Keep your inbox.<br /><em>Make it blind.</em>',
     hero_sub: 'ZeroMX seals the mail sent to your domain before it reaches Gmail. Google stores ciphertext it can’t read, search or scan. You keep reading and replying in the same tab.',
     hero_btn_waitlist: 'Join the waitlist',
@@ -423,11 +423,11 @@ const TRANSLATIONS = {
         code: null
       }
     ],
-    pricing_note: '<strong>Planned price:</strong> $3 a month. Storage stays in the mailbox you already have. Later, holders of DOT can stake instead of paying monthly. A stake carries token price risk.',
+    pricing_note: '<strong>Planned price:</strong> $3/month (or $29/year). Storage stays in the mailbox you already have. <a href="/investors">Team / Workspace gateway pricing →</a>',
 
     road_tag: 'Roadmap',
     road_title: 'Where this is today.',
-    road_desc: 'ZeroMX is at design stage. Nothing here is a shipped product yet. This is the order things get built in.',
+    road_desc: 'The protocol and threat model are complete; the private alpha is in build. This is the order things ship.',
     roadmap: [
       {
         when: 'Now',
@@ -472,24 +472,51 @@ const TRANSLATIONS = {
       ]
     },
 
-    inv_tag: 'For investors',
+    inv_page_title: 'ZeroMX — Investor Brief',
+    inv_back_product: '← Product & Demo',
+    inv_nav_thesis: 'Thesis',
+    inv_nav_contact: 'Talk to Founder',
+    inv_tag: 'Investor brief',
     inv_title: 'Private email lost because it asked people to move. This doesn’t.',
-    inv_lede: 'Encrypted mail has a proven market and a hard ceiling: most people will not leave the inbox they have used for fifteen years. ZeroMX sells the privacy without the move.',
+    inv_lede: 'Encrypted mail has a proven market and a hard ceiling: individuals and regulated firms cannot leave the Gmail or Microsoft 365 inbox their workflow and SSO depend on. ZeroMX sells the privacy without the move.',
     inv_stats: [
       { n: '1.8B', l: 'people use Gmail', s: 'Widely reported figure' },
       { n: '100M+', l: 'accounts at the largest encrypted provider', s: 'Proton, its own announcement' },
       { n: '$0', l: 'storage cost per user', s: 'Mail stays in the mailbox the user already has' }
     ],
     inv_points: [
-      { t: 'The wedge', b: 'People who already own a domain and live in Gmail: founders, freelancers, consultants, crypto-native users. They hold client, health and financial mail, and they have never accepted a second inbox.' },
-      { t: 'The cost structure', b: 'Encrypted providers pay to store and serve decades of mail. ZeroMX stores none of it. Relays seal and forward, which is what makes a $3 monthly price workable.' },
-      { t: 'Why now', b: 'Passkeys make key management invisible. Confidential VMs are a commodity on every major cloud. AI assistants reading inboxes made the problem visible, and local AI turns a private index into a feature.' },
-      { t: 'What compounds', b: 'Any two ZeroMX users upgrade to end-to-end automatically, so the key directory grows more valuable with every domain. An operator network and a public audit trail are hard to copy quickly.' },
-      { t: 'Revenue', b: 'Subscriptions first, with a Pro tier for multiple domains. Then a gateway for small regulated firms on Workspace or Microsoft 365, with organization-held keys and dedicated relays.' },
-      { t: 'Risks we plan around', b: 'Dependence on Gmail’s web interface and delivery rules. Hardware attestation narrows trust but is not a proof. Polkadot JAM is not on mainnet yet, so the first releases do not depend on it.' }
+      { t: 'Consumer wedge', b: 'Founders, freelancers and consultants who already own a domain on Gmail and want local AI / MCP over their inbox without Google Gemini scanning their archive.' },
+      { t: 'High-ARPU B2B wedge', b: 'Boutique law firms, clinics, tax advisors and VC funds locked into Google Workspace or Microsoft 365 as their corporate IdP. Google’s own CSE costs $25–$35/seat and still leaves inbound external client mail unencrypted.' },
+      { t: 'The cost structure', b: 'Encrypted providers pay to store and serve decades of mail. ZeroMX stores none of it. Relays seal and forward, keeping compute COGS to cents per user.' },
+      { t: 'Why now', b: 'Passkeys make key management invisible. Confidential VMs are a commodity on every major cloud. Cloud AI assistants scanning inboxes made the exposure visceral, while local MCP turns a private index into an active feature.' },
+      { t: 'What compounds', b: 'Any two ZeroMX domains upgrade to end-to-end automatically, making the public key directory more valuable with every onboarded domain and operator.' },
+      { t: 'Risks we test first', b: 'Gmail spam-classifier handling of sealed relay mail (Week-1 test), Chrome webmail UI changes (mitigated by ZeroMX Bridge), hardware TEE boundaries, and JAM mainnet/light-client timing (decoupled from v0/v1).' }
     ],
-    inv_stage: '<strong>Stage:</strong> protocol design and threat model are written. The private alpha is next.',
+    inv_stage: '<strong>Stage:</strong> protocol specification, threat model, and interactive prototype complete. Private alpha next.',
     inv_cta: 'Start a conversation',
+    inv_contact_tag: 'Direct founder contact',
+    inv_contact_title: 'Talk directly with Daniel Cukier.',
+    inv_contact_desc: 'Pre-seed & ecosystem grant stage. Full technical spec, threat model, and Polkadot JAM control plane design are ready to walk through.',
+    inv_form_email_label: 'Your work email',
+    inv_form_email_ph: 'partner@fund.com',
+    inv_form_note_label: 'Fund / role & what you’d like to discuss (optional)',
+    inv_form_note_ph: 'Pre-seed check size, B2B pilot intro, or Polkadot ecosystem grant…',
+    inv_form_submit: 'Send note to Daniel',
+    inv_form_done_title: 'Note received.',
+    inv_form_done_body: 'Daniel will reply directly from his personal email.',
+
+    dev_modal: {
+      tag: 'OPEN-SOURCE CONTRIBUTORS',
+      title: 'Request early repository access',
+      sub: 'Tell Daniel your email and what you’d like to hack on (Rust/Wasm crypto, SEV-SNP/TDX Nix builds, Chrome MV3, or Polkadot JAM PVM).',
+      emailLabel: 'Email',
+      emailPh: 'you@domain.dev',
+      noteLabel: 'GitHub handle & area of interest',
+      notePh: '@handle — interested in PVM attestation verifier / Gmail MV3 adapter',
+      submitBtn: 'Request access',
+      doneTitle: 'Request sent.',
+      doneBody: 'We’ll add you or send the public release link as soon as the spec tag cuts.'
+    },
 
     dev_tag: 'For developers',
     dev_title: 'Hard problems, meant to be solved in the open.',
@@ -521,12 +548,20 @@ const TRANSLATIONS = {
     wl_perk3: 'One email when your invite is ready. No newsletter.',
 
     waitlistForm: {
-      modalTag: 'EARLY ACCESS',
-      modalTitle: 'Join the ZeroMX waitlist',
-      modalSub: 'Users, investors and contributors all start here. Tell us which you are.',
+      modalTag: 'PRIVATE ALPHA',
+      modalTitle: 'Get an early alpha invite',
+      modalSub: 'Enter your email to reserve a spot. Optional setup questions come after — takes 5 seconds.',
       emailPlaceholder: 'you@yourdomain.com',
       submitBtn: 'Join waitlist',
       submittingBtn: 'Joining…',
+      step2Title: 'Optional: tell us your setup so we invite the right wave first',
+      savePrefsBtn: 'Save setup',
+      prefsSaved: 'Setup saved — thanks!',
+      wtpTitle: 'Founding Member Early Access (Willingness-to-Pay Test)',
+      wtpDesc: 'Want first-batch onboarding and a locked $2/month rate (instead of $3/mo)? Reserve a refundable $15 founding deposit — $0 charged today; we only invoice when your alpha invite is live.',
+      wtpBtn: 'Reserve founding slot ($15 refundable)',
+      wtpReservedTitle: 'Founding slot reserved',
+      wtpReservedDesc: 'You’re flagged for Wave 1 at $2/mo locked. Nothing is charged until alpha goes live.',
       providerLabel: 'Where your mail lives today',
       providers: [
         { id: 'gmail', label: 'Gmail / Workspace' },
@@ -548,21 +583,19 @@ const TRANSLATIONS = {
         { id: 'yes', label: 'I own one' },
         { id: 'not-yet', label: 'Not yet' }
       ],
-      planLabel: 'What brings you here',
+      planLabel: 'Use case',
       plans: [
-        { id: 'fiat-sub', label: 'Using it ($3 a month)' },
-        { id: 'stake-dot', label: 'Using it (staking DOT)' },
-        { id: 'b2b-team', label: 'For my team' },
-        { id: 'run-node', label: 'Running a relay' },
-        { id: 'invest', label: 'Investing' },
-        { id: 'contribute', label: 'Contributing code' }
+        { id: 'fiat-sub', label: 'Personal ($3/mo)' },
+        { id: 'b2b-team', label: 'Team / Company Workspace' },
+        { id: 'stake-dot', label: 'Personal (DOT stake later)' },
+        { id: 'run-node', label: 'Running a relay' }
       ],
-      privacyNote: 'Used only to send your invite. This page has no trackers.',
+      privacyNote: 'One email when your invite opens. Zero third-party trackers or cookies.',
       invalidEmail: 'Please enter a valid email address.',
       genericError: 'That didn’t go through. Please try again in a moment.',
       successTitle: 'You’re on the list.',
-      successBody: (email) => `We saved a spot for <strong>${email}</strong>. Know someone who would want this? Send them the link.`,
-      shareBtn: 'Copy link',
+      successBody: (email) => `Spot saved for <strong>${email}</strong>.`,
+      shareBtn: 'Copy link to share',
       copiedBtn: 'Link copied'
     },
 
@@ -615,8 +648,12 @@ const TRANSLATIONS = {
       }
     ],
 
-    footer_text: 'ZeroMX is a design-stage project. This page is an interactive prototype, not a shipped product.',
-    footer_built: 'Control plane designed for Polkadot JAM.'
+    founder_kicker: 'Built in the open',
+    founder_title: 'Started by Daniel Cukier',
+    founder_bio: 'Systems engineer based in Portugal, working on Polkadot JAM and privacy infrastructure. Building ZeroMX so private email stops forcing people out of their daily workflow.',
+
+    footer_text: 'Private alpha opening soon. Built by Daniel Cukier in Portugal.',
+    footer_built: 'No trackers. No cookies. Control plane designed for Polkadot JAM.'
   },
 
   pt: {
@@ -630,7 +667,7 @@ const TRANSLATIONS = {
     nav_developers: 'Desenvolvedores',
     nav_cta: 'Entrar na lista',
 
-    hero_chip: 'Fase de design. Os convites do alpha vão primeiro para a lista de espera.',
+    hero_chip: 'Alpha privado em breve · Gmail no Chrome para desktop primeiro',
     hero_title: 'Mantenha sua caixa de entrada.<br /><em>Deixe-a cega.</em>',
     hero_sub: 'O ZeroMX sela os e-mails enviados ao seu domínio antes de chegarem ao Gmail. O Google guarda texto cifrado que não consegue ler, pesquisar nem escanear. Você continua lendo e respondendo na mesma aba.',
     hero_btn_waitlist: 'Entrar na lista de espera',
@@ -1040,11 +1077,11 @@ const TRANSLATIONS = {
         code: null
       }
     ],
-    pricing_note: '<strong>Preço planejado:</strong> US$ 3 por mês. O armazenamento continua na caixa que você já tem. Mais adiante, quem tem DOT poderá fazer stake em vez de pagar mensalidade. Um stake carrega o risco de preço do token.',
+    pricing_note: '<strong>Preço planejado:</strong> US$ 3/mês (ou US$ 29/ano). O armazenamento continua na caixa que você já tem. <a href="/investors">Gateway para equipes / Workspace →</a>',
 
     road_tag: 'Roadmap',
     road_title: 'Onde isto está hoje.',
-    road_desc: 'O ZeroMX está em fase de design. Nada aqui é um produto lançado ainda. Esta é a ordem em que as coisas serão construídas.',
+    road_desc: 'O protocolo e o modelo de ameaças estão prontos; o alpha privado está em construção. Esta é a ordem dos lançamentos.',
     roadmap: [
       {
         when: 'Agora',
@@ -1089,24 +1126,51 @@ const TRANSLATIONS = {
       ]
     },
 
-    inv_tag: 'Para investidores',
+    inv_page_title: 'ZeroMX — Resumo para Investidores',
+    inv_back_product: '← Produto & Demo',
+    inv_nav_thesis: 'Tese',
+    inv_nav_contact: 'Falar com o Fundador',
+    inv_tag: 'Resumo para investidores',
     inv_title: 'O e-mail privado perdeu porque pediu para as pessoas se mudarem. Este não pede.',
-    inv_lede: 'E-mail cifrado tem mercado comprovado e um teto duro: a maioria das pessoas não abandona a caixa que usa há quinze anos. O ZeroMX vende a privacidade sem a mudança.',
+    inv_lede: 'E-mail cifrado tem mercado comprovado e um teto duro: pessoas e empresas reguladas não conseguem largar o Gmail ou Microsoft 365 de que seu trabalho e SSO dependem. O ZeroMX entrega a privacidade sem a mudança.',
     inv_stats: [
       { n: '1,8 bi', l: 'pessoas usam Gmail', s: 'Número amplamente divulgado' },
       { n: '100 mi+', l: 'contas no maior provedor cifrado', s: 'Proton, anúncio da própria empresa' },
       { n: 'US$ 0', l: 'custo de armazenamento por usuário', s: 'O e-mail fica na caixa que o usuário já tem' }
     ],
     inv_points: [
-      { t: 'A porta de entrada', b: 'Pessoas que já têm domínio e vivem no Gmail: fundadores, freelancers, consultores, usuários cripto. Elas guardam e-mails de clientes, de saúde e financeiros, e nunca aceitaram uma segunda caixa.' },
-      { t: 'A estrutura de custos', b: 'Provedores cifrados pagam para guardar e servir décadas de e-mail. O ZeroMX não guarda nada. Os relays selam e encaminham, e é isso que viabiliza um preço de US$ 3 por mês.' },
-      { t: 'Por que agora', b: 'Passkeys tornam a gestão de chaves invisível. VMs confidenciais viraram commodity em todas as grandes nuvens. Assistentes de IA lendo caixas de entrada deixaram o problema visível, e a IA local transforma um índice privado em recurso.' },
-      { t: 'O que se acumula', b: 'Quaisquer dois usuários ZeroMX passam a ponta a ponta automaticamente, então o diretório de chaves vale mais a cada domínio. Uma rede de operadores e um histórico público de auditorias são difíceis de copiar depressa.' },
-      { t: 'Receita', b: 'Assinaturas primeiro, com um plano Pro para vários domínios. Depois, um gateway para pequenas empresas reguladas no Workspace ou Microsoft 365, com chaves da organização e relays dedicados.' },
-      { t: 'Riscos que já consideramos', b: 'Dependência da interface web e das regras de entrega do Gmail. A atestação de hardware reduz a confiança necessária, mas não é uma prova. O Polkadot JAM ainda não está na mainnet, então os primeiros lançamentos não dependem dele.' }
+      { t: 'Porta de entrada B2C', b: 'Fundadores, freelancers e consultores que já têm domínio no Gmail e querem IA local / MCP sem o Google Gemini lendo seu arquivo.' },
+      { t: 'Wedge B2B de alto valor', b: 'Escritórios de advocacia, clínicas, consultorias tributárias e fundos presos ao Google Workspace / M365 como IdP corporativo. O CSE do Google custa US$ 25–35/usuário e ainda deixa e-mails externos de clientes sem cifra.' },
+      { t: 'Estrutura de custos', b: 'Provedores cifrados pagam para guardar décadas de anexos. O ZeroMX não guarda nada — os relays apenas selam e encaminham, mantendo o COGS em centavos por usuário.' },
+      { t: 'Por que agora', b: 'Passkeys tornam chaves invisíveis. VMs confidenciais viraram commodity em toda nuvem. IAs de nuvem escaneando caixas tornaram o risco visível, e o MCP local transforma privacidade em recurso ativo.' },
+      { t: 'O que se acumula', b: 'Dois domínios ZeroMX passam automaticamente a ponta a ponta, tornando o diretório público de chaves mais valioso a cada novo usuário e operador.' },
+      { t: 'Riscos testados primeiro', b: 'Entregabilidade de envelopes selados no filtro de spam do Gmail (teste da semana 1), mudanças de DOM (mitigadas pelo ZeroMX Bridge), limites físicos de TEEs e prazo da mainnet do JAM (desacoplado de v0/v1).' }
     ],
-    inv_stage: '<strong>Estágio:</strong> o design do protocolo e o modelo de ameaças estão escritos. O alpha privado é o próximo passo.',
+    inv_stage: '<strong>Estágio:</strong> especificação do protocolo, modelo de ameaças e protótipo concluídos. Alpha privado em seguida.',
     inv_cta: 'Iniciar uma conversa',
+    inv_contact_tag: 'Contato direto com o fundador',
+    inv_contact_title: 'Fale direto com Daniel Cukier.',
+    inv_contact_desc: 'Estágio pré-seed e grants de ecossistema. Especificação técnica, modelo de ameaças e design do plano de controle no Polkadot JAM prontos para revisão.',
+    inv_form_email_label: 'Seu e-mail profissional',
+    inv_form_email_ph: 'socio@fundo.com',
+    inv_form_note_label: 'Fundo / papel e o que gostaria de conversar (opcional)',
+    inv_form_note_ph: 'Pré-seed, piloto B2B em Workspace ou grant do ecossistema Polkadot…',
+    inv_form_submit: 'Enviar mensagem para Daniel',
+    inv_form_done_title: 'Mensagem recebida.',
+    inv_form_done_body: 'O Daniel responderá diretamente pelo e-mail pessoal dele.',
+
+    dev_modal: {
+      tag: 'CONTRIBUIDORES OPEN-SOURCE',
+      title: 'Pedir acesso antecipado ao repositório',
+      sub: 'Informe seu e-mail e em que frente você gostaria de contribuir (cripto Rust/Wasm, imagens Nix SEV-SNP/TDX, Chrome MV3 ou PVM no Polkadot JAM).',
+      emailLabel: 'E-mail',
+      emailPh: 'voce@dominio.dev',
+      noteLabel: 'Usuário GitHub e área de interesse',
+      notePh: '@usuario — interesse no verificador PVM / adaptador Gmail MV3',
+      submitBtn: 'Pedir acesso',
+      doneTitle: 'Pedido enviado.',
+      doneBody: 'Vamos liberar acesso ou avisar assim que a tag pública da especificação sair.'
+    },
 
     dev_tag: 'Para desenvolvedores',
     dev_title: 'Problemas difíceis, para resolver às claras.',
@@ -1138,12 +1202,20 @@ const TRANSLATIONS = {
     wl_perk3: 'Um e-mail quando seu convite estiver pronto. Sem newsletter.',
 
     waitlistForm: {
-      modalTag: 'ACESSO ANTECIPADO',
-      modalTitle: 'Entre na lista de espera do ZeroMX',
-      modalSub: 'Usuários, investidores e contribuidores começam aqui. Conte qual é o seu caso.',
+      modalTag: 'ALPHA PRIVADO',
+      modalTitle: 'Garanta um convite antecipado',
+      modalSub: 'Coloque seu e-mail para reservar vaga. As perguntas opcionais de setup aparecem depois — leva 5 segundos.',
       emailPlaceholder: 'voce@seudominio.com',
       submitBtn: 'Entrar na lista',
       submittingBtn: 'Enviando…',
+      step2Title: 'Opcional: conte seu setup para priorizarmos seu convite',
+      savePrefsBtn: 'Salvar setup',
+      prefsSaved: 'Setup salvo — obrigado!',
+      wtpTitle: 'Vaga de Fundador (Teste de Disposição a Pagar)',
+      wtpDesc: 'Quer entrar na 1ª leva e travar US$ 2/mês vitalício (em vez de US$ 3/mês)? Reserve com depósito reembolsável de US$ 15 — US$ 0 cobrado hoje; só faturamos quando o alpha abrir.',
+      wtpBtn: 'Reservar vaga de fundador (US$ 15 reembolsável)',
+      wtpReservedTitle: 'Vaga de fundador reservada',
+      wtpReservedDesc: 'Você entrou para a 1ª leva a US$ 2/mês travados. Nada é cobrado até o alpha abrir.',
       providerLabel: 'Onde seu e-mail está hoje',
       providers: [
         { id: 'gmail', label: 'Gmail / Workspace' },
@@ -1165,21 +1237,19 @@ const TRANSLATIONS = {
         { id: 'yes', label: 'Já tenho' },
         { id: 'not-yet', label: 'Ainda não' }
       ],
-      planLabel: 'O que traz você aqui',
+      planLabel: 'Caso de uso',
       plans: [
-        { id: 'fiat-sub', label: 'Usar (US$ 3 por mês)' },
-        { id: 'stake-dot', label: 'Usar (stake de DOT)' },
-        { id: 'b2b-team', label: 'Para minha equipe' },
-        { id: 'run-node', label: 'Operar um relay' },
-        { id: 'invest', label: 'Investir' },
-        { id: 'contribute', label: 'Contribuir com código' }
+        { id: 'fiat-sub', label: 'Pessoal (US$ 3/mês)' },
+        { id: 'b2b-team', label: 'Equipe / Workspace da empresa' },
+        { id: 'stake-dot', label: 'Pessoal (stake DOT depois)' },
+        { id: 'run-node', label: 'Operar um relay' }
       ],
-      privacyNote: 'Usado apenas para enviar seu convite. Esta página não tem rastreadores.',
+      privacyNote: 'Um e-mail quando seu convite abrir. Zero rastreadores ou cookies.',
       invalidEmail: 'Digite um endereço de e-mail válido.',
       genericError: 'Não foi possível enviar. Tente de novo em instantes.',
       successTitle: 'Você está na lista.',
-      successBody: (email) => `Guardamos uma vaga para <strong>${email}</strong>. Conhece alguém que ia querer isto? Mande o link.`,
-      shareBtn: 'Copiar link',
+      successBody: (email) => `Vaga salva para <strong>${email}</strong>.`,
+      shareBtn: 'Copiar link para compartilhar',
       copiedBtn: 'Link copiado'
     },
 
@@ -1232,7 +1302,11 @@ const TRANSLATIONS = {
       }
     ],
 
-    footer_text: 'O ZeroMX é um projeto em fase de design. Esta página é um protótipo interativo, não um produto lançado.',
-    footer_built: 'Plano de controle projetado para o Polkadot JAM.'
+    founder_kicker: 'Construído às claras',
+    founder_title: 'Iniciado por Daniel Cukier',
+    founder_bio: 'Engenheiro de sistemas baseado em Portugal, trabalhando em Polkadot JAM e infraestrutura de privacidade. Criando o ZeroMX para que e-mail privado pare de exigir abandono do fluxo diário.',
+
+    footer_text: 'Alpha privado em breve. Construído por Daniel Cukier em Portugal.',
+    footer_built: 'Sem rastreadores. Sem cookies. Plano de controle projetado para o Polkadot JAM.'
   }
 };

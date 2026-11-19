@@ -2,12 +2,18 @@
  * ZeroMX Waitlist Serverless Endpoint (Vercel Functions)
  * POST /api/waitlist
  *
- * Automatically persists leads to whichever durable backend is configured via Vercel Env Vars:
+ * Supports multi-step progressive capture without losing early signups:
+ *   - stage: "signup"        -> Initial email capture (Step 1)
+ *   - stage: "profile"       -> Optional setup preferences (Step 2)
+ *   - stage: "wtp"           -> Founding-member willingness-to-pay reservation
+ *   - stage: "investor"      -> Investor direct outreach with optional note
+ *   - stage: "contributor"   -> Developer contributor inquiry with optional GitHub/note
+ *
+ * Persists leads to whichever durable backend is configured via Vercel Env Vars:
  *   1. Vercel KV / Upstash Redis (KV_REST_API_URL + KV_REST_API_TOKEN or UPSTASH_REDIS_REST_URL + UPSTASH_REDIS_REST_TOKEN)
  *   2. Private GitHub Repo Issues (GITHUB_TOKEN + WAITLIST_GITHUB_REPO — verifies repo is private before writing!)
  *   3. Generic Webhook — Slack / Discord / Telegram / n8n / Make (WAITLIST_WEBHOOK_URL)
  *   4. Resend Email Notification (RESEND_API_KEY + WAITLIST_NOTIFY_EMAIL)
- * Plus structured JSON logging in Vercel Runtime Logs.
  */
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -17,25 +23,61 @@ function sanitize(val, maxLen = 120) {
   return val.trim().slice(0, maxLen);
 }
 
-async function saveToRedis(entry) {
+function getRedisCreds() {
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!url || !token) return false;
+  if (!url || !token) return null;
+  return { url: url.replace(/\/$/, ''), token };
+}
+
+async function saveToRedis(entry) {
+  const creds = getRedisCreds();
+  if (!creds) return false;
 
   const headers = {
-    Authorization: `Bearer ${token}`,
+    Authorization: `Bearer ${creds.token}`,
     'Content-Type': 'application/json'
   };
 
-  // Pipeline: add email to deduplicated SET and store full JSON metadata in HASH
-  const pipelineRes = await fetch(`${url.replace(/\/$/, '')}/pipeline`, {
+  // Merge with existing entry if this is a Step-2 profile/WTP update for the same email
+  let merged = { ...entry };
+  try {
+    const existingRes = await fetch(`${creds.url}/hget/zeromx:waitlist:entries/${encodeURIComponent(entry.email)}`, {
+      headers
+    });
+    if (existingRes.ok) {
+      const existingJson = await existingRes.json();
+      if (existingJson && typeof existingJson.result === 'string') {
+        const prev = JSON.parse(existingJson.result);
+        merged = {
+          ...prev,
+          ...Object.fromEntries(Object.entries(entry).filter(([, v]) => v !== '' && v !== 'unspecified')),
+          createdAt: prev.createdAt || entry.timestamp,
+          updatedAt: entry.timestamp
+        };
+      }
+    }
+  } catch (_) {
+    // Non-fatal: fall back to writing fresh entry
+  }
+
+  const commands = [
+    ['SADD', 'zeromx:waitlist:emails', entry.email],
+    ['HSET', 'zeromx:waitlist:entries', entry.email, JSON.stringify(merged)],
+    ['SCARD', 'zeromx:waitlist:emails']
+  ];
+
+  if (merged.willingToPay) {
+    commands.push(['SADD', 'zeromx:waitlist:wtp', entry.email]);
+  }
+  if (entry.stage === 'investor' || merged.planInterest === 'invest') {
+    commands.push(['SADD', 'zeromx:waitlist:investors', entry.email]);
+  }
+
+  const pipelineRes = await fetch(`${creds.url}/pipeline`, {
     method: 'POST',
     headers,
-    body: JSON.stringify([
-      ['SADD', 'zeromx:waitlist:emails', entry.email],
-      ['HSET', 'zeromx:waitlist:entries', entry.email, JSON.stringify(entry)],
-      ['SCARD', 'zeromx:waitlist:emails']
-    ])
+    body: JSON.stringify(commands)
   });
 
   if (!pipelineRes.ok) {
@@ -50,7 +92,7 @@ async function saveToRedis(entry) {
 
 async function saveToPrivateGithubRepo(entry) {
   const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.WAITLIST_GITHUB_REPO; // e.g. "danicuki/zeromx-waitlist"
+  const repo = process.env.WAITLIST_GITHUB_REPO;
   if (!token || !repo) return false;
 
   const ghHeaders = {
@@ -70,22 +112,36 @@ async function saveToPrivateGithubRepo(entry) {
     throw new Error('Refusing to write waitlist PII to a non-private GitHub repository');
   }
 
+  const tag = entry.stage === 'wtp'
+    ? 'Waitlist WTP'
+    : entry.stage === 'investor'
+    ? 'Investor'
+    : entry.stage === 'contributor'
+    ? 'Developer'
+    : entry.stage === 'profile'
+    ? 'Waitlist Update'
+    : 'Waitlist';
+
   const issueRes = await fetch(`https://api.github.com/repos/${repo}/issues`, {
     method: 'POST',
     headers: ghHeaders,
     body: JSON.stringify({
-      title: `[Waitlist] ${entry.email} (${entry.provider} • ${entry.planInterest})`,
+      title: `[${tag}] ${entry.email} (${entry.planInterest || entry.stage})`,
       labels: ['waitlist'],
       body: [
-        '### New ZeroMX Waitlist Signup',
+        `### ZeroMX ${tag}`,
         '',
-        `| Field | Value |`,
-        `| :--- | :--- |`,
+        '| Field | Value |',
+        '| :--- | :--- |',
         `| **Email** | \`${entry.email}\` |`,
-        `| **Current Provider** | \`${entry.provider}\` |`,
-        `| **Reads Mail In** | \`${entry.mailClient}\` |`,
-        `| **Owns Custom Domain** | \`${entry.ownsDomain}\` |`,
-        `| **Preferred Model** | \`${entry.planInterest}\` |`,
+        `| **Stage** | \`${entry.stage}\` |`,
+        `| **Current Provider** | \`${entry.provider || 'unspecified'}\` |`,
+        `| **Reads Mail In** | \`${entry.mailClient || 'unspecified'}\` |`,
+        `| **Owns Custom Domain** | \`${entry.ownsDomain || 'unspecified'}\` |`,
+        `| **Interest** | \`${entry.planInterest || 'unspecified'}\` |`,
+        `| **Willingness To Pay** | \`${entry.willingToPay || 'none'}\` |`,
+        `| **Note / Handle** | ${entry.note ? `\`${entry.note}\`` : '—'} |`,
+        `| **Source / Referrer** | \`${entry.referrer || 'direct'}\` |`,
         `| **Locale** | \`${entry.lang}\` |`,
         `| **Timestamp** | \`${entry.timestamp}\` |`
       ].join('\n')
@@ -102,7 +158,27 @@ async function sendWebhook(entry) {
   const webhookUrl = process.env.WAITLIST_WEBHOOK_URL;
   if (!webhookUrl) return false;
 
-  const summary = `🚀 **ZeroMX Waitlist**: \`${entry.email}\` | Provider: \`${entry.provider}\` | Reads in: \`${entry.mailClient}\` | Domain: \`${entry.ownsDomain}\` | Interest: \`${entry.planInterest}\``;
+  const prefix = entry.stage === 'wtp'
+    ? '💰 **ZeroMX Founding Deposit Intent**'
+    : entry.stage === 'investor'
+    ? '🏦 **ZeroMX Investor Inquiry**'
+    : entry.stage === 'contributor'
+    ? '🛠️ **ZeroMX Developer Inquiry**'
+    : entry.stage === 'profile'
+    ? '🧩 **ZeroMX Profile Updated**'
+    : '✉️ **ZeroMX Waitlist Signup**';
+
+  const parts = [
+    `${prefix}: \`${entry.email}\``,
+    entry.provider && entry.provider !== 'unspecified' ? `Provider: \`${entry.provider}\`` : null,
+    entry.mailClient && entry.mailClient !== 'unspecified' ? `Client: \`${entry.mailClient}\`` : null,
+    entry.ownsDomain && entry.ownsDomain !== 'unspecified' ? `Domain: \`${entry.ownsDomain}\`` : null,
+    entry.planInterest && entry.planInterest !== 'unspecified' ? `Interest: \`${entry.planInterest}\`` : null,
+    entry.willingToPay ? `WTP: \`${entry.willingToPay}\`` : null,
+    entry.note ? `Note: ${entry.note}` : null
+  ].filter(Boolean);
+
+  const summary = parts.join(' | ');
   const res = await fetch(webhookUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -134,7 +210,7 @@ async function sendResendEmail(entry) {
     body: JSON.stringify({
       from: fromEmail,
       to: [notifyEmail],
-      subject: `[ZeroMX Waitlist] ${entry.email} (${entry.planInterest})`,
+      subject: `[ZeroMX ${entry.stage}] ${entry.email}`,
       text: JSON.stringify(entry, null, 2)
     })
   });
@@ -171,18 +247,24 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ ok: false, error: 'Invalid email address' });
     }
 
+    const validStages = new Set(['signup', 'profile', 'wtp', 'investor', 'contributor']);
+    const rawStage = sanitize(body.stage || 'signup', 24);
+    const stage = validStages.has(rawStage) ? rawStage : 'signup';
+
     const entry = {
       email,
-      provider: sanitize(body.provider || 'gmail', 40),
+      stage,
+      provider: sanitize(body.provider || 'unspecified', 40),
       mailClient: sanitize(body.mailClient || 'unspecified', 40),
-      ownsDomain: sanitize(body.ownsDomain || 'yes', 20),
-      planInterest: sanitize(body.planInterest || 'stake-dot', 40),
+      ownsDomain: sanitize(body.ownsDomain || 'unspecified', 20),
+      planInterest: sanitize(body.planInterest || 'unspecified', 40),
+      willingToPay: sanitize(body.willingToPay || '', 40),
+      note: sanitize(body.note || '', 400),
       lang: sanitize(body.lang || 'en', 10),
       referrer: sanitize(body.referrer || '', 200),
       timestamp: new Date().toISOString()
     };
 
-    // Always emit structured log line for Vercel Logs observability
     console.log('[ZEROMX_WAITLIST]', JSON.stringify(entry));
 
     const results = await Promise.allSettled([
@@ -207,10 +289,9 @@ module.exports = async function handler(req, res) {
     }
 
     // Runtime logs expire, so they are not a waitlist. If no durable backend accepted
-    // the entry (none configured, or all failed), tell the visitor it did not go
-    // through instead of confirming a signup that was never stored.
+    // the entry, return 503 instead of confirming a signup that was never stored.
     if (!durablePersisted) {
-      console.error('[ZEROMX_WAITLIST_NOT_PERSISTED] No durable backend stored this entry. Configure one of the env vars listed at the top of this file.');
+      console.error('[ZEROMX_WAITLIST_NOT_PERSISTED] No durable backend stored this entry.');
       return res.status(503).json({ ok: false, error: 'Waitlist storage unavailable' });
     }
 

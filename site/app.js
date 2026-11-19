@@ -19,9 +19,38 @@ const state = {
     // No default: an untouched choice must not count as "reads mail in the browser".
     mailClient: null,
     ownsDomain: 'yes',
-    planInterest: 'fiat-sub'
-  }
+    planInterest: 'fiat-sub',
+    prefsSaved: false,
+    wtpReserved: false
+  },
+  tracked: new Set()
 };
+
+function getSource() {
+  const params = new URLSearchParams(window.location.search);
+  const utm = params.get('utm_source') || params.get('ref');
+  if (utm) return utm;
+  if (document.referrer) {
+    try {
+      return new URL(document.referrer).hostname.replace(/^www\./, '');
+    } catch (_) {
+      return 'direct';
+    }
+  }
+  return 'direct';
+}
+
+function trackEvent(event, once = false) {
+  if (once && state.tracked.has(event)) return;
+  if (once) state.tracked.add(event);
+  if (['localhost', '127.0.0.1', ''].includes(window.location.hostname)) return;
+  fetch('/api/event', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ event, source: getSource() }),
+    keepalive: true
+  }).catch(() => {});
+}
 
 const ICON_PATHS = {
   check: '<path d="M5 12.5l4.5 4.5L19 7.5" />',
@@ -205,8 +234,8 @@ function applyStaticTranslations() {
 
   document.getElementById('faqList').innerHTML = dict.faq
     .map(
-      (f, i) => `
-      <details class="faq-item"${i === 0 ? ' open' : ''}>
+      (f) => `
+      <details class="faq-item">
         <summary>${f.q}</summary>
         <p>${f.a}</p>
       </details>`
@@ -215,20 +244,26 @@ function applyStaticTranslations() {
 
   renderCompare();
 
-  document.getElementById('invStats').innerHTML = dict.inv_stats
-    .map(
-      (s) => `
-      <div class="stat">
-        <span class="stat-n">${s.n}</span>
-        <span class="stat-l">${s.l}</span>
-        <span class="stat-s">${s.s}</span>
-      </div>`
-    )
-    .join('');
+  const invStats = document.getElementById('invStats');
+  if (invStats) {
+    invStats.innerHTML = dict.inv_stats
+      .map(
+        (s) => `
+        <div class="stat">
+          <span class="stat-n">${s.n}</span>
+          <span class="stat-l">${s.l}</span>
+          <span class="stat-s">${s.s}</span>
+        </div>`
+      )
+      .join('');
+  }
 
-  document.getElementById('invPoints').innerHTML = dict.inv_points
-    .map((p) => `<div class="point"><h3>${p.t}</h3><p>${p.b}</p></div>`)
-    .join('');
+  const invPoints = document.getElementById('invPoints');
+  if (invPoints) {
+    invPoints.innerHTML = dict.inv_points
+      .map((p) => `<div class="point"><h3>${p.t}</h3><p>${p.b}</p></div>`)
+      .join('');
+  }
 
   document.getElementById('devStack').innerHTML = dict.dev_stack.map((s) => `<li>${s}</li>`).join('');
 
@@ -338,6 +373,7 @@ function initLens(reducedMotion) {
   lens.addEventListener('pointerdown', (e) => {
     dragging = true;
     state.lensTouched = true;
+    trackEvent('lens_drag', true);
     lens.setPointerCapture(e.pointerId);
     setLensPos(posFromEvent(e));
   });
@@ -552,6 +588,7 @@ function renderSimulator() {
 
 function setView(view) {
   state.view = view;
+  if (view === 'bigtech') trackEvent('demo_provider_view', true);
   document.querySelectorAll('#viewToggle .seg-btn').forEach((btn) => {
     const active = btn.getAttribute('data-view') === view;
     btn.classList.toggle('active', active);
@@ -754,36 +791,36 @@ ${gibberish('notif', 58)}</div>
   ok.focus();
 }
 
-/* ---------- Waitlist (widget, inline mount and modal) ---------- */
+/* ---------- Waitlist (2-step frictionless signup + optional profile + WTP test) ---------- */
+async function postWaitlist(payload) {
+  const res = await fetch('/api/waitlist', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  // The local-preview fallback below must never hide a broken API in production.
+  const isLocalPreview = ['localhost', '127.0.0.1', ''].includes(window.location.hostname);
+  if (!res.ok && !(isLocalPreview && [404, 405, 501].includes(res.status))) {
+    throw new Error('API rejected');
+  }
+
+  if (!res.ok) {
+    const localEntries = JSON.parse(localStorage.getItem('zeromx_waitlist_preview') || '[]');
+    localEntries.push(payload);
+    localStorage.setItem('zeromx_waitlist_preview', JSON.stringify(localEntries));
+  }
+}
+
+function syncWaitlistMounts() {
+  renderInlineWaitlist();
+  const modalMount = document.getElementById('modalWaitlistMount');
+  if (modalMount) mountWaitlistWidget(modalMount);
+}
+
 function mountWaitlistWidget(container) {
   if (!container) return;
   const wf = t().waitlistForm;
-
-  if (state.waitlist.submittedEmail) {
-    container.innerHTML = `
-      <div class="wl-success-box">
-        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" style="width: 46px; height: 46px;">
-          <circle cx="16" cy="16" r="16" fill="currentColor" />
-          <path d="M9.5 16.5l4.5 4.5 8.5-9.500" fill="none" stroke="#f3efe6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-        <h3>${escapeHtml(wf.successTitle)}</h3>
-        <p>${wf.successBody(escapeHtml(state.waitlist.submittedEmail))}</p>
-        <button type="button" class="btn btn-secondary wl-share-btn">${escapeHtml(wf.shareBtn)}</button>
-      </div>
-    `;
-    const shareBtn = container.querySelector('.wl-share-btn');
-    if (shareBtn) {
-      shareBtn.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(window.location.origin + window.location.pathname);
-          shareBtn.textContent = wf.copiedBtn;
-        } catch (_) {
-          shareBtn.textContent = wf.copiedBtn;
-        }
-      });
-    }
-    return;
-  }
 
   const renderChips = (items, selectedId, attrName) =>
     items
@@ -798,6 +835,155 @@ function mountWaitlistWidget(container) {
       )
       .join('');
 
+  // STEP 2: Email already captured — show confirmation, WTP founding-slot test, and optional setup profile
+  if (state.waitlist.submittedEmail) {
+    const wtpBlock = state.waitlist.wtpReserved
+      ? `
+        <div class="wtp-box is-reserved">
+          <div class="wtp-box-title">${escapeHtml(wf.wtpReservedTitle)}</div>
+          <p style="margin-bottom:0;">${escapeHtml(wf.wtpReservedDesc)}</p>
+        </div>`
+      : `
+        <div class="wtp-box">
+          <div class="wtp-box-title">${escapeHtml(wf.wtpTitle)}</div>
+          <p>${escapeHtml(wf.wtpDesc)}</p>
+          <button type="button" class="btn btn-ink btn-sm wl-wtp-btn">${escapeHtml(wf.wtpBtn)}</button>
+        </div>`;
+
+    container.innerHTML = `
+      <div class="wl-success-box">
+        <div class="wl-success-head">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true" style="width: 34px; height: 34px;">
+            <circle cx="16" cy="16" r="16" fill="currentColor" />
+            <path d="M9.5 16.5l4.5 4.5 8.5-9.5" fill="none" stroke="#f3efe6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <h3>${escapeHtml(wf.successTitle)}</h3>
+        </div>
+        <p>${wf.successBody(escapeHtml(state.waitlist.submittedEmail))}</p>
+
+        ${wtpBlock}
+
+        <div class="wl-step2-panel">
+          <div class="wl-step2-title">${escapeHtml(wf.step2Title)}</div>
+          <div class="wl-chip-group">
+            <span class="wl-chip-label">${escapeHtml(wf.providerLabel)}</span>
+            <div class="wl-chips">${renderChips(wf.providers, state.waitlist.provider, 'wl-provider')}</div>
+          </div>
+          <div class="wl-chip-group">
+            <span class="wl-chip-label">${escapeHtml(wf.clientLabel)}</span>
+            <div class="wl-chips">${renderChips(wf.clients, state.waitlist.mailClient, 'wl-client')}</div>
+          </div>
+          <div class="wl-chip-group">
+            <span class="wl-chip-label">${escapeHtml(wf.domainLabel)}</span>
+            <div class="wl-chips">${renderChips(wf.domains, state.waitlist.ownsDomain, 'wl-domain')}</div>
+          </div>
+          <div class="wl-chip-group">
+            <span class="wl-chip-label">${escapeHtml(wf.planLabel)}</span>
+            <div class="wl-chips">${renderChips(wf.plans, state.waitlist.planInterest, 'wl-plan')}</div>
+          </div>
+          <div class="wl-actions-row">
+            <button type="button" class="btn btn-primary btn-sm wl-save-prefs-btn">
+              ${escapeHtml(state.waitlist.prefsSaved ? wf.prefsSaved : wf.savePrefsBtn)}
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm wl-share-btn">${escapeHtml(wf.shareBtn)}</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    container.querySelectorAll('[data-wl-provider]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.waitlist.provider = btn.getAttribute('data-wl-provider');
+        state.waitlist.prefsSaved = false;
+        mountWaitlistWidget(container);
+      });
+    });
+    container.querySelectorAll('[data-wl-client]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.waitlist.mailClient = btn.getAttribute('data-wl-client');
+        state.waitlist.prefsSaved = false;
+        mountWaitlistWidget(container);
+      });
+    });
+    container.querySelectorAll('[data-wl-domain]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.waitlist.ownsDomain = btn.getAttribute('data-wl-domain');
+        state.waitlist.prefsSaved = false;
+        mountWaitlistWidget(container);
+      });
+    });
+    container.querySelectorAll('[data-wl-plan]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.waitlist.planInterest = btn.getAttribute('data-wl-plan');
+        state.waitlist.prefsSaved = false;
+        mountWaitlistWidget(container);
+      });
+    });
+
+    const wtpBtn = container.querySelector('.wl-wtp-btn');
+    if (wtpBtn) {
+      wtpBtn.addEventListener('click', async () => {
+        wtpBtn.disabled = true;
+        try {
+          await postWaitlist({
+            email: state.waitlist.submittedEmail,
+            stage: 'wtp',
+            willingToPay: 'founding-15',
+            provider: state.waitlist.provider,
+            mailClient: state.waitlist.mailClient || 'unspecified',
+            ownsDomain: state.waitlist.ownsDomain,
+            planInterest: state.waitlist.planInterest,
+            lang: state.lang,
+            referrer: getSource()
+          });
+          state.waitlist.wtpReserved = true;
+          trackEvent('wtp_founding_click', true);
+          syncWaitlistMounts();
+        } catch (_) {
+          wtpBtn.disabled = false;
+        }
+      });
+    }
+
+    const savePrefsBtn = container.querySelector('.wl-save-prefs-btn');
+    if (savePrefsBtn) {
+      savePrefsBtn.addEventListener('click', async () => {
+        savePrefsBtn.disabled = true;
+        try {
+          await postWaitlist({
+            email: state.waitlist.submittedEmail,
+            stage: 'profile',
+            provider: state.waitlist.provider,
+            mailClient: state.waitlist.mailClient || 'unspecified',
+            ownsDomain: state.waitlist.ownsDomain,
+            planInterest: state.waitlist.planInterest,
+            lang: state.lang,
+            referrer: getSource()
+          });
+          state.waitlist.prefsSaved = true;
+          trackEvent('waitlist_profile', true);
+          syncWaitlistMounts();
+        } catch (_) {
+          savePrefsBtn.disabled = false;
+        }
+      });
+    }
+
+    const shareBtn = container.querySelector('.wl-share-btn');
+    if (shareBtn) {
+      shareBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(window.location.origin + window.location.pathname);
+        } catch (_) {
+          /* ignore */
+        }
+        shareBtn.textContent = wf.copiedBtn;
+      });
+    }
+    return;
+  }
+
+  // STEP 1: Zero-friction single-field capture
   container.innerHTML = `
     <form class="wl-form" novalidate>
       <input type="text" name="website_url" class="hp-hidden" tabindex="-1" autocomplete="off" />
@@ -812,59 +998,10 @@ function mountWaitlistWidget(container) {
         />
         <button type="submit" class="btn btn-primary wl-submit-btn">${escapeHtml(wf.submitBtn)}</button>
       </div>
-
-      <div class="wl-chip-group">
-        <span class="wl-chip-label">${escapeHtml(wf.providerLabel)}</span>
-        <div class="wl-chips">${renderChips(wf.providers, state.waitlist.provider, 'wl-provider')}</div>
-      </div>
-
-      <div class="wl-chip-group">
-        <span class="wl-chip-label">${escapeHtml(wf.clientLabel)}</span>
-        <div class="wl-chips">${renderChips(wf.clients, state.waitlist.mailClient, 'wl-client')}</div>
-      </div>
-
-      <div class="wl-chip-group">
-        <span class="wl-chip-label">${escapeHtml(wf.domainLabel)}</span>
-        <div class="wl-chips">${renderChips(wf.domains, state.waitlist.ownsDomain, 'wl-domain')}</div>
-      </div>
-
-      <div class="wl-chip-group">
-        <span class="wl-chip-label">${escapeHtml(wf.planLabel)}</span>
-        <div class="wl-chips">${renderChips(wf.plans, state.waitlist.planInterest, 'wl-plan')}</div>
-      </div>
-
       <div class="wl-error" style="display: none;"></div>
       <div class="wl-note">${escapeHtml(wf.privacyNote)}</div>
     </form>
   `;
-
-  container.querySelectorAll('[data-wl-provider]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      state.waitlist.provider = btn.getAttribute('data-wl-provider');
-      mountWaitlistWidget(container);
-    });
-  });
-
-  container.querySelectorAll('[data-wl-client]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      state.waitlist.mailClient = btn.getAttribute('data-wl-client');
-      mountWaitlistWidget(container);
-    });
-  });
-
-  container.querySelectorAll('[data-wl-domain]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      state.waitlist.ownsDomain = btn.getAttribute('data-wl-domain');
-      mountWaitlistWidget(container);
-    });
-  });
-
-  container.querySelectorAll('[data-wl-plan]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      state.waitlist.planInterest = btn.getAttribute('data-wl-plan');
-      mountWaitlistWidget(container);
-    });
-  });
 
   const form = container.querySelector('.wl-form');
   const emailInput = container.querySelector('input[name="email"]');
@@ -891,41 +1028,18 @@ function mountWaitlistWidget(container) {
     submitBtn.disabled = true;
     submitBtn.textContent = wf.submittingBtn;
 
-    const payload = {
-      email,
-      website_url: hpInput.value,
-      provider: state.waitlist.provider,
-      mailClient: state.waitlist.mailClient || 'unspecified',
-      ownsDomain: state.waitlist.ownsDomain,
-      planInterest: state.waitlist.planInterest,
-      lang: state.lang,
-      referrer: document.referrer || window.location.href
-    };
-
     try {
-      const res = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+      await postWaitlist({
+        email,
+        stage: 'signup',
+        website_url: hpInput.value,
+        lang: state.lang,
+        referrer: getSource()
       });
 
-      // The local-preview fallback below must never hide a broken API in production.
-      const isLocalPreview = ['localhost', '127.0.0.1', ''].includes(window.location.hostname);
-      if (!res.ok && !(isLocalPreview && [404, 405, 501].includes(res.status))) {
-        throw new Error('API rejected');
-      }
-
-      // If running on a local static server (404/405/501), store locally for preview convenience
-      if (!res.ok) {
-        const localEntries = JSON.parse(localStorage.getItem('zeromx_waitlist_preview') || '[]');
-        localEntries.push(payload);
-        localStorage.setItem('zeromx_waitlist_preview', JSON.stringify(localEntries));
-      }
-
       state.waitlist.submittedEmail = email;
-      renderInlineWaitlist();
-      const modalMount = document.getElementById('modalWaitlistMount');
-      if (modalMount) mountWaitlistWidget(modalMount);
+      trackEvent('waitlist_submit', true);
+      syncWaitlistMounts();
     } catch (_) {
       submitBtn.disabled = false;
       submitBtn.textContent = wf.submitBtn;
@@ -942,24 +1056,21 @@ function renderInlineWaitlist() {
 
 function openWaitlistModal() {
   const wf = t().waitlistForm;
-  const backdrop = document.getElementById('modalBackdrop');
   const content = document.getElementById('modalContent');
 
+  showModal();
   content.innerHTML = `
     <div class="modal-top">
       <div>
-        <span style="font-family: var(--font-mono); font-size: 0.74rem; color: var(--accent-emerald);">
-          ${escapeHtml(wf.modalTag)}
-        </span>
-        <h3 style="margin-top: 4px;">${escapeHtml(wf.modalTitle)}</h3>
-        <p style="font-size: 0.84rem; color: var(--text-secondary); margin-top: 4px;">${escapeHtml(wf.modalSub)}</p>
+        <span class="modal-tag">${escapeHtml(wf.modalTag)}</span>
+        <h3>${escapeHtml(wf.modalTitle)}</h3>
+        <p style="font-size: 0.88rem; color: var(--ink-2); margin-top: 6px;">${escapeHtml(wf.modalSub)}</p>
       </div>
       <button type="button" class="modal-close" id="closeModalBtn" aria-label="Close">&times;</button>
     </div>
     <div id="modalWaitlistMount"></div>
   `;
 
-  backdrop.classList.add('open');
   document.getElementById('closeModalBtn').addEventListener('click', closeModal);
   mountWaitlistWidget(document.getElementById('modalWaitlistMount'));
   const modalEmail = content.querySelector('input[name="email"]');
@@ -968,11 +1079,90 @@ function openWaitlistModal() {
 
 function openWaitlistFor(planInterest) {
   if (planInterest) state.waitlist.planInterest = planInterest;
-  if (!document.getElementById('modalBackdrop').classList.contains('open')) {
-    state.lastFocus = document.activeElement;
-  }
+  trackEvent('waitlist_open', true);
   renderInlineWaitlist();
   openWaitlistModal();
+}
+
+function openContributorModal() {
+  const dm = t().dev_modal;
+  const wf = t().waitlistForm;
+  const content = document.getElementById('modalContent');
+
+  showModal();
+  content.innerHTML = `
+    <div class="modal-top">
+      <div>
+        <span class="modal-tag">${escapeHtml(dm.tag)}</span>
+        <h3>${escapeHtml(dm.title)}</h3>
+        <p style="font-size: 0.88rem; color: var(--ink-2); margin-top: 6px;">${escapeHtml(dm.sub)}</p>
+      </div>
+      <button type="button" class="modal-close" id="closeModalBtn" aria-label="Close">&times;</button>
+    </div>
+    <form class="wl-form" id="devAccessForm" novalidate>
+      <input type="text" name="website_url" class="hp-hidden" tabindex="-1" autocomplete="off" />
+      <div class="form-field">
+        <label for="devEmail">${escapeHtml(dm.emailLabel)}</label>
+        <input type="email" id="devEmail" placeholder="${escapeHtml(dm.emailPh)}" required />
+      </div>
+      <div class="form-field">
+        <label for="devNote">${escapeHtml(dm.noteLabel)}</label>
+        <textarea id="devNote" rows="3" placeholder="${escapeHtml(dm.notePh)}"></textarea>
+      </div>
+      <div class="wl-error" id="devErr" style="display: none;"></div>
+      <div class="modal-foot">
+        <span>${escapeHtml(wf.privacyNote)}</span>
+        <button type="submit" class="btn btn-primary" id="devSubmitBtn">${escapeHtml(dm.submitBtn)}</button>
+      </div>
+    </form>
+  `;
+
+  document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+  const emailEl = document.getElementById('devEmail');
+  const noteEl = document.getElementById('devNote');
+  const errEl = document.getElementById('devErr');
+  const btnEl = document.getElementById('devSubmitBtn');
+  const form = document.getElementById('devAccessForm');
+  const hpEl = form.querySelector('input[name="website_url"]');
+
+  emailEl.focus();
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errEl.style.display = 'none';
+    const email = emailEl.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      errEl.textContent = wf.invalidEmail;
+      errEl.style.display = 'block';
+      emailEl.focus();
+      return;
+    }
+
+    btnEl.disabled = true;
+    btnEl.textContent = wf.submittingBtn;
+    try {
+      await postWaitlist({
+        email,
+        stage: 'contributor',
+        planInterest: 'contribute',
+        note: noteEl.value.trim(),
+        website_url: hpEl.value,
+        lang: state.lang,
+        referrer: getSource()
+      });
+      trackEvent('contributor_submit', true);
+      form.innerHTML = `
+        <div class="wl-success-box">
+          <h3>${escapeHtml(dm.doneTitle)}</h3>
+          <p>${escapeHtml(dm.doneBody)}</p>
+        </div>
+      `;
+    } catch (_) {
+      btnEl.disabled = false;
+      btnEl.textContent = dm.submitBtn;
+      errEl.textContent = wf.genericError;
+      errEl.style.display = 'block';
+    }
+  });
 }
 
 /* ---------- Language ---------- */
@@ -1064,12 +1254,17 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSimulator();
   });
 
-  document.getElementById('openComposeBtn').addEventListener('click', () => openComposeModal(null));
+  document.getElementById('openComposeBtn').addEventListener('click', () => {
+    trackEvent('demo_compose', true);
+    openComposeModal(null);
+  });
   document.getElementById('mobilePreviewBtn').addEventListener('click', openMobileGapModal);
   document.getElementById('navWaitlistBtn').addEventListener('click', () => openWaitlistFor(null));
   document.getElementById('heroWaitlistBtn').addEventListener('click', () => openWaitlistFor(null));
-  document.getElementById('invCtaBtn').addEventListener('click', () => openWaitlistFor('invest'));
-  document.getElementById('devCtaBtn').addEventListener('click', () => openWaitlistFor('contribute'));
+  const invCta = document.getElementById('invCtaBtn');
+  if (invCta) invCta.addEventListener('click', () => openWaitlistFor('invest'));
+  const devCta = document.getElementById('devCtaBtn');
+  if (devCta) devCta.addEventListener('click', openContributorModal);
 
   document.getElementById('modalBackdrop').addEventListener('mousedown', (e) => {
     if (e.target.id === 'modalBackdrop') closeModal();
@@ -1093,4 +1288,5 @@ document.addEventListener('DOMContentLoaded', () => {
   setLang(initialLang());
   initLens(reducedMotion);
   initReveals(reducedMotion);
+  trackEvent('pageview', true);
 });

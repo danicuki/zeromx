@@ -15,24 +15,28 @@ Relays run in attested confidential VMs. Keys, relay measurements, and operators
 ```text
 .
 ├── site/                              # Landing page and interactive prototype (EN + PT), no build step
-│   ├── index.html                     # Page structure: hero, demo, comparison, trust, investors, developers, waitlist
+│   ├── index.html                     # Consumer & developer landing page: lens, demo, trust, waitlist
+│   ├── investors.html                 # Dedicated /investors brief + direct founder contact form
+│   ├── investors.js                   # Investor brief localization & submission logic
 │   ├── styles.css                     # "Sealed post" identity: paper, ink, seal red
 │   ├── i18n.js                        # All copy, English and Brazilian Portuguese
-│   ├── app.js                         # Lens, inbox simulator, flow explorer, modals, waitlist widget
+│   ├── app.js                         # Lens, inbox simulator, 2-step waitlist + WTP test, funnel events
 │   ├── fonts/                         # Self-hosted Instrument Serif, Instrument Sans, IBM Plex Mono (OFL)
 │   ├── favicon.svg
-│   └── og.png                         # Link preview image (1200x630)
+│   └── og.png                         # Crisp 1200x630 social share preview image
 ├── api/
-│   └── waitlist.js                    # POST /api/waitlist serverless function
+│   ├── waitlist.js                    # POST /api/waitlist multi-step lead + WTP + investor/dev handler
+│   └── event.js                       # POST /api/event zero-cookie aggregate funnel counter
 ├── docs/                              # Architecture, Technical Spec, Business Model, Roadmap & Backlog
 │   ├── 01-architecture.md             # System architecture, Mermaid sequence diagrams & assurance tiers
 │   ├── 02-technical-specification.md  # Cryptographic envelope, Polkadot JAM PVM service, TEE relays & MCP
 │   ├── 03-business-model.md           # Storage arbitrage unit economics, Stake-to-Use (DOT) & B2B gateway
 │   ├── 04-roadmap.md                  # Private alpha to open network, external gates & top risks
 │   ├── 05-development-plan.md         # Target Rust/TS monorepo layout, reproducible TEE builds & QA plan
-│   ├── 06-backlog-and-issues.md       # Prioritized Epics & 36 actionable GitHub issues (ZMX-001..ZMX-036)
+│   ├── 06-backlog-and-issues.md       # Prioritized Epics & 37 actionable GitHub issues (ZMX-000..ZMX-036)
 │   ├── 07-threat-model-and-limits.md  # What is protected, who is trusted, known limits, claims we do not make
-│   └── 08-why-polkadot-jam.md         # What JAM adds, what it lacks today, and a review of the "only JAM" argument
+│   ├── 08-why-polkadot-jam.md         # What JAM adds, what it lacks today, and a review of the "only JAM" argument
+│   └── 09-validation-and-launch-plan.md # 14-day demand validation, WTP test & launch playbook
 └── vercel.json                        # Zero-config static deployment configuration for Vercel
 ```
 
