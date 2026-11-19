@@ -108,7 +108,7 @@ Written in memory-safe Rust (`tokio` + `rustls`), compiled via deterministic Nix
 
 ---
 
-## 4. Client Architecture: Passkeys, Local Search & Local MCP
+## 4. Client Architecture: Passkeys, Local Search, Local MCP & Bridge
 
 ### 4.1 Passwordless Key Hierarchy via `WebAuthn PRF`
 
@@ -132,7 +132,11 @@ Passkey Hardware Authenticator (FaceID / TouchID / YubiKey)
 - **Engine:** `wa-sqlite` compiled to WebAssembly with `FTS5` full-text tokenizer running inside a dedicated Web Worker backed by the browser's Origin Private File System (`OPFS`), encrypted page-by-page with `HKDF("zeromx/v1/index-db-key")`.
 - **What gets indexed without any mailbox API:** every message the extension has rendered, plus every new message from the moment of install (the client receives the notification preview and fetches the envelope from the open webmail session).
 - **Full-archive indexing is opt-in** and needs read access to the mailbox through the provider API or IMAP. For Gmail this is a restricted OAuth scope with a provider-run verification and a yearly security assessment. It is a gating item with its own budget, not an assumed capability.
-- **Multi-Device Index Sync:** Compact, encrypted index segments are sent to the user's own mailbox through the sent-to-self path under a dedicated label. The latest snapshot hash and a monotonic counter are recorded in the control plane (`vault_sync_roots`) to detect rollback by the provider.
+- **Multi-Device Index Sync (browser only):** Compact, encrypted index segments are sent to the user's own mailbox through the sent-to-self path under a dedicated label. The latest snapshot hash and a monotonic counter are recorded in the control plane (`vault_sync_roots`) to detect rollback by the provider. A Bridge does not need this: it has IMAP access and indexes the mailbox itself (section 4.4).
+- **Query language:** the search box and `zeromx.search_messages` accept the Gmail operators people already use: `from:`, `to:`, `cc:`, `subject:`, `has:attachment`, `filename:`, `before:`/`after:`/`older_than:`/`newer_than:`, `larger:`/`smaller:`, `label:`, `in:`, `is:unread`/`is:starred`, `OR`, `-` for negation, quoted phrases and parentheses. A small parser maps them to `FTS5` `MATCH` terms plus filters on metadata columns. This is ordinary engineering, not research.
+- **What is harder than the syntax:** searching inside attachment content (PDF text extraction, OCR on images), typo tolerance, and relevance ranking at Gmail's level. These ship after the basic operators, in that order.
+- **Mail from before ZeroMX** stays plaintext at the provider and keeps the provider's own search. The local index covers sealed mail. The UI says which of the two a result came from.
+- **Optional on-device semantic search:** a small local embedding model adds "find the email about the lease renewal" style queries, and a local LLM can turn a natural-language question into operators. Both are opt-in, run only on the device, and are skipped on hardware too small to run them well.
 
 ### 4.3 Sovereign AI via Local MCP Server (`zeromx-mcp`)
 
@@ -142,3 +146,30 @@ To replace cloud-side AI features lost when blinding Google/Microsoft, ZeroMX sh
 - `zeromx.get_thread(thread_id)` — Returns decrypted conversation context to the user's chosen local/private LLM (Claude Desktop, Cursor, Ollama, etc.).
 - `zeromx.create_encrypted_draft(to, subject, body, in_reply_to)` — Stages an encrypted draft inside the isolated composer awaiting human confirmation (never auto-sends without explicit user click).
 - `zeromx.extract_calendar_events()` — Parses decrypted `.ics` invites and prepares 1-click calendar insertion.
+
+### 4.4 ZeroMX Bridge for Desktop Mail Apps (`crates/zeromx-bridge`)
+
+Many people read mail in Apple Mail, Spark, Outlook or Thunderbird, not in a browser tab. These apps cannot run the extension and most have no plugin API. The Bridge serves them the way Proton Mail Bridge serves Proton users: a local proxy that speaks standard IMAP and SMTP to the mail app and handles the cryptography in between.
+
+```text
+Mail app (Apple Mail / Spark / Outlook / Thunderbird)
+   │  IMAP + SMTP over TLS, 127.0.0.1 only, per-install credentials
+   ▼
+ZeroMX Bridge (Rust daemon, zeromx-crypto, local encrypted index)
+   │  IMAP to the vault                 │  SMTP submission
+   ▼                                    ▼
+Gmail (ciphertext store)          ZeroMX egress relay, or direct E2E seal
+```
+
+- **Inbound:** the Bridge fetches sealed envelopes over IMAP, opens them, and serves the inner `RFC 9788` message with the real `From`, `Subject`, `Message-ID` and `References`, so the mail app shows and threads it normally.
+- **Every write is sealed:** any `APPEND` from the mail app (drafts, sent copies, messages moved in from another account) is sealed to the user's key before it reaches the provider. A draft typed in Spark never reaches Gmail in plaintext.
+- **Outbound:** SMTP submission on localhost. The Bridge seals end to end for ZeroMX recipients, signs `DKIM` client-side with the wrapped key from section 4.1, and hands other mail to the egress relay. The sent copy is sealed and appended to the Sent folder.
+- **Search:** the Bridge answers IMAP `SEARCH` from its own index, because the provider's server-side search sees only envelopes. Most desktop apps also search their own local cache, which works once messages are downloaded.
+- **Keys:** unlocked with the same passkey through the operating system's passkey API, or by pairing with the extension. The unwrapped key stays in the OS keychain.
+- **Upstream sign-in:** an **app password** (personal Google accounts with 2-Step Verification; not available under Advanced Protection; Workspace admins can disable it) or **OAuth**, which needs Google's restricted-scope verification and yearly assessment. Beta starts with app passwords, and OAuth follows once that assessment is budgeted.
+- **Multi-device:** each computer runs its own Bridge and builds its own index from the mailbox. There is nothing to sync between them.
+- **Limits, stated to the user:**
+  - The mail app's cloud features stop working for this account: vendor push notifications, Send Later, shared inboxes, vendor AI. Their servers cannot reach `127.0.0.1`, and if they could they would only see sealed mail. For apps such as Spark, whose servers hold mailbox credentials to send push notifications, this is a privacy gain.
+  - The account works only on computers where the Bridge runs. Phones use the ZeroMX app.
+  - The mail app keeps its own decrypted cache on disk. That falls under device security ([07, L6](07-threat-model-and-limits.md)); onboarding recommends full-disk encryption.
+  - Folder names, labels and flags the user sets travel to the provider as before. They are metadata the provider can see.

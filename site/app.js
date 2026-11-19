@@ -16,6 +16,8 @@ const state = {
     draftEmail: '',
     submittedEmail: '',
     provider: 'gmail',
+    // No default: an untouched choice must not count as "reads mail in the browser".
+    mailClient: null,
     ownsDomain: 'yes',
     planInterest: 'fiat-sub'
   }
@@ -817,6 +819,11 @@ function mountWaitlistWidget(container) {
       </div>
 
       <div class="wl-chip-group">
+        <span class="wl-chip-label">${escapeHtml(wf.clientLabel)}</span>
+        <div class="wl-chips">${renderChips(wf.clients, state.waitlist.mailClient, 'wl-client')}</div>
+      </div>
+
+      <div class="wl-chip-group">
         <span class="wl-chip-label">${escapeHtml(wf.domainLabel)}</span>
         <div class="wl-chips">${renderChips(wf.domains, state.waitlist.ownsDomain, 'wl-domain')}</div>
       </div>
@@ -834,6 +841,13 @@ function mountWaitlistWidget(container) {
   container.querySelectorAll('[data-wl-provider]').forEach((btn) => {
     btn.addEventListener('click', () => {
       state.waitlist.provider = btn.getAttribute('data-wl-provider');
+      mountWaitlistWidget(container);
+    });
+  });
+
+  container.querySelectorAll('[data-wl-client]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.waitlist.mailClient = btn.getAttribute('data-wl-client');
       mountWaitlistWidget(container);
     });
   });
@@ -881,6 +895,7 @@ function mountWaitlistWidget(container) {
       email,
       website_url: hpInput.value,
       provider: state.waitlist.provider,
+      mailClient: state.waitlist.mailClient || 'unspecified',
       ownsDomain: state.waitlist.ownsDomain,
       planInterest: state.waitlist.planInterest,
       lang: state.lang,

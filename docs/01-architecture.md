@@ -15,7 +15,7 @@ Privacy-focused email providers (e.g., Proton Mail, Tuta) suffer from a structur
 A **centralized SaaS encryption proxy** in front of Gmail or Outlook only moves the trust: the proxy company sees all inbound and outbound mail in plaintext RAM.
 
 **ZeroMX addresses both sides:**
-- **Your mailbox becomes a ciphertext store.** Mail sent to your custom domain (`@yourdomain.com`) is sealed to your key before it reaches your mailbox provider. The first supported vault is **Gmail on desktop Chrome**. Outlook, iCloud, Fastmail and generic IMAP follow.
+- **Your mailbox becomes a ciphertext store.** Mail sent to your custom domain (`@yourdomain.com`) is sealed to your key before it reaches your mailbox provider. The first supported vault is **Gmail on desktop Chrome**. Desktop mail apps (Apple Mail, Spark, Outlook, Thunderbird) connect through **ZeroMX Bridge**, a local IMAP/SMTP proxy, from the public beta. Outlook web, iCloud, Fastmail and generic IMAP vaults follow.
 - **The relay is constrained, not trusted blindly.** **Blind MX Relays** run in attested **confidential VMs** whose measurements, keys, and operators are recorded in a public control plane, designed to run as a **Polkadot JAM Service**. Trust is minimized and every remaining trust point is named in [07](07-threat-model-and-limits.md).
 
 **What this does not do:** it does not hide mail from your correspondent's provider, and it does not make relay operators mathematically unable to read legacy mail. See [07, section 2](07-threat-model-and-limits.md).
@@ -100,6 +100,8 @@ sequenceDiagram
 
 Step 1 is only as safe as the sender's TLS validation. Every onboarded domain publishes MTA-STS and DANE records pinned to relay keys. See [07, section 5](07-threat-model-and-limits.md).
 
+**Where the mail lives.** The relay never delivers to a device. It seals the message and delivers it to the mailbox over SMTP, like any other mail server. The mailbox is both the store and the sync point: every device reads from it, the extension through the open webmail session, the Bridge over IMAP, the phone app through the provider API. No device has to be online to receive mail, and there is no ZeroMX cloud copy and no device-to-device sync.
+
 ### Flow B — Outbound Reply Without Draft or Sent Leaks
 
 Typing inside Gmail's native compose box uploads plaintext drafts every few seconds. ZeroMX prevents both draft and Sent-folder leaks:
@@ -154,10 +156,11 @@ Legacy SMTP ends TLS at the receiving `MX`, so on an ordinary server the host ad
 | # | User-Visible Friction | Root Cause | Design Answer |
 | :- | :--- | :--- | :--- |
 | **1** | **Phone.** The official Gmail/Outlook apps show `🔒 Thread #a72f91` and ciphertext. | Mobile platforms do not allow extensions inside other vendors' apps. | A **native ZeroMX mobile app**. The ingress relay seals a short preview to a device-bound notification key and sends it through the platform push service, so notifications show the real sender and subject. Users mute the provider app's notifications for the vault label. This *is* a second app on the phone, and the product says so. |
-| **2** | **Server-side search goes blind.** | The provider holds only ciphertext. | The client keeps an encrypted local **SQLite (`FTS5`)** index, synced across devices as encrypted blobs. Indexing the full archive needs read access to the mailbox (see row 7). |
+| **2** | **Server-side search goes blind.** | The provider holds only ciphertext. | The client keeps an encrypted local **SQLite (`FTS5`)** index and accepts **Gmail-style operators** (`from:`, `subject:`, `has:attachment`, `before:`, `label:`…). In the browser the index syncs across devices as encrypted blobs. Each Bridge builds its own index from IMAP, so desktops need no sync. Mail received before ZeroMX stays plaintext in the provider and keeps its server-side search. Searching inside attachment content and OCR come later. Indexing the full archive needs read access to the mailbox (see row 7). |
 | **3** | **Calendar invites (`.ics`)** stop auto-adding. | Cloud parsers cannot read encrypted attachments. | The client parses decrypted `text/calendar` parts and offers a one-click add. |
 | **4** | **Cloud AI assistants break.** | Cloud LLMs see ciphertext. | A **Local MCP server (`zeromx-mcp`)** reads the local decrypted index for the user's own agents. |
 | **5** | **Spam filtering** cannot run after encryption. | Provider filters see uniform ciphertext. | The relay runs `SPF`/`DKIM`/`DMARC` and scoring before sealing and tags the outer envelope. This is weaker than a large provider's filter. **Per-sender aliases** (`bank@`, `shop-x@` on a catch-all domain) let users cut off a leaking address. |
 | **6** | **Mail to the legacy `@gmail.com` address** reaches the provider first. | It resolves to the provider's MX. | Guided migration of accounts to the custom-domain address. The at-rest sweeper is optional hygiene. |
 | **7** | **Mailbox API access is gated by the provider.** | Reading the full archive or writing to folders needs restricted OAuth scopes and a yearly security assessment that the provider controls. | Read, reply, and sent copies work **without any mailbox API** (webmail DOM plus sent-to-self). Full-archive indexing is an opt-in that uses the API or IMAP, and is budgeted as a gating item. |
 | **8** | **Owning a custom domain.** | Most people do not have one. | Onboarding registers one for the user at a registrar in the user's own name, or connects an existing one. |
+| **9** | **Desktop mail apps** (Apple Mail, Spark, Outlook, Thunderbird) show sealed envelopes. | They cannot run a browser extension, and most have no plugin API. | **ZeroMX Bridge**, a local IMAP/SMTP proxy on `127.0.0.1` that decrypts on the way in and seals on the way out ([02, section 4.4](02-technical-specification.md)). The mail app's own cloud features (vendor push, Send Later, shared inbox, vendor AI) stop working for that account, because the vendor's servers can only reach sealed mail. The account works only on computers that run the Bridge. |

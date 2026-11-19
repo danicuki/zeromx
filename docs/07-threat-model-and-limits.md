@@ -124,3 +124,5 @@ The full case for JAM, a claim-by-claim review of the "only JAM" argument, and t
 | "$0 per month forever." | "No monthly bill if you stake. Your stake carries token price risk." |
 | "No second app." | "On desktop you stay inside your webmail. On your phone you use the ZeroMX app." |
 | "Works with Gmail, Outlook, iCloud, any IMAP." | "Gmail on desktop Chrome first. Outlook and others follow." |
+| "Works with Spark / Apple Mail." (before the Bridge ships) | "Desktop mail apps connect through ZeroMX Bridge, planned for the public beta, on the computers where it runs." |
+| "Same search as Gmail." | "Gmail-style search operators over your decrypted mail, on your device. Search inside attachments comes later." |

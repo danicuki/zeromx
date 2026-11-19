@@ -419,7 +419,7 @@ const TRANSLATIONS = {
       },
       {
         title: 'Install the extension',
-        desc: 'Mail to your domain now opens decrypted in Gmail on desktop. On your phone, install the ZeroMX app.',
+        desc: 'Mail to your domain now opens decrypted in Gmail on desktop. On your phone, install the ZeroMX app. Desktop mail apps such as Apple Mail and Spark connect through ZeroMX Bridge from the beta.',
         code: null
       }
     ],
@@ -444,7 +444,7 @@ const TRANSLATIONS = {
       {
         when: 'Then',
         title: 'Public beta',
-        body: 'Independent security audit, relays you can verify per message, the mobile app, local search and MCP.',
+        body: 'Independent security audit, relays you can verify per message, the mobile app, ZeroMX Bridge for desktop mail apps, local search and MCP.',
         state: 'later'
       },
       {
@@ -534,6 +534,15 @@ const TRANSLATIONS = {
         { id: 'icloud', label: 'iCloud' },
         { id: 'other', label: 'Proton / other' }
       ],
+      clientLabel: 'Where you read it',
+      clients: [
+        { id: 'webmail', label: 'In the browser' },
+        { id: 'apple-mail', label: 'Apple Mail' },
+        { id: 'spark', label: 'Spark' },
+        { id: 'outlook-app', label: 'Outlook app' },
+        { id: 'other-app', label: 'Another app' },
+        { id: 'phone', label: 'Mostly on my phone' }
+      ],
       domainLabel: 'Custom domain',
       domains: [
         { id: 'yes', label: 'I own one' },
@@ -570,7 +579,19 @@ const TRANSLATIONS = {
       },
       {
         q: 'Why not just use Proton?',
-        a: 'Proton is a good choice if you’re happy to move to a new inbox. ZeroMX is for people who won’t leave Gmail on desktop but don’t want it holding a readable archive of their life.'
+        a: 'Proton is a good choice if you’re happy to move to a new inbox. ZeroMX keeps the mailbox and account you already have, stores none of your mail itself, and costs less. Your provider just stops being able to read it.'
+      },
+      {
+        q: 'Where does my mail actually go? Does the relay send it to my computer?',
+        a: 'No. The relay seals each message and delivers it to your mailbox, Gmail for example, like any other mail server would. Your mailbox is the storage and the sync. Every device reads from it, so nothing has to be online to receive mail, and there is no extra cloud and no syncing between your devices.'
+      },
+      {
+        q: 'I use Spark or Apple Mail, not Gmail in a browser.',
+        a: 'Then the browser extension won’t help you. ZeroMX Bridge will: a small app on your computer that reads your mailbox, decrypts with your key, and hands normal mail to your mail app on your own machine. It works the way Proton’s Bridge does, and it is planned for the public beta. Two honest limits: your app’s cloud extras, such as push from its servers or Send Later, stop working for that account, and the Bridge has to run on each computer you read from. Tell us your app in the waitlist form.'
+      },
+      {
+        q: 'Do I lose Gmail’s search?',
+        a: 'For sealed mail, Gmail only sees envelopes, so search runs on your device instead, with the operators you already know: from:, subject:, has:attachment, before:, label: and the rest. Mail you received before ZeroMX stays searchable in Gmail. Searching inside PDF attachments comes later. An optional local AI model can answer questions about your mail without it leaving your computer.'
       },
       {
         q: 'What happens on my phone?',
@@ -1015,7 +1036,7 @@ const TRANSLATIONS = {
       },
       {
         title: 'Instale a extensão',
-        desc: 'Os e-mails do seu domínio passam a abrir decifrados no Gmail do desktop. No celular, instale o app ZeroMX.',
+        desc: 'Os e-mails do seu domínio passam a abrir decifrados no Gmail do desktop. No celular, instale o app ZeroMX. Apps de e-mail no computador, como Apple Mail e Spark, se conectam pelo ZeroMX Bridge a partir do beta.',
         code: null
       }
     ],
@@ -1040,7 +1061,7 @@ const TRANSLATIONS = {
       {
         when: 'Depois',
         title: 'Beta público',
-        body: 'Auditoria de segurança independente, relays verificáveis por mensagem, o app de celular, busca local e MCP.',
+        body: 'Auditoria de segurança independente, relays verificáveis por mensagem, o app de celular, o ZeroMX Bridge para apps de e-mail no computador, busca local e MCP.',
         state: 'later'
       },
       {
@@ -1130,6 +1151,15 @@ const TRANSLATIONS = {
         { id: 'icloud', label: 'iCloud' },
         { id: 'other', label: 'Proton / outro' }
       ],
+      clientLabel: 'Onde você lê',
+      clients: [
+        { id: 'webmail', label: 'No navegador' },
+        { id: 'apple-mail', label: 'Apple Mail' },
+        { id: 'spark', label: 'Spark' },
+        { id: 'outlook-app', label: 'App do Outlook' },
+        { id: 'other-app', label: 'Outro app' },
+        { id: 'phone', label: 'Quase só no celular' }
+      ],
       domainLabel: 'Domínio próprio',
       domains: [
         { id: 'yes', label: 'Já tenho' },
@@ -1166,7 +1196,19 @@ const TRANSLATIONS = {
       },
       {
         q: 'Por que não usar o Proton?',
-        a: 'O Proton é uma boa escolha se você topa mudar para uma caixa nova. O ZeroMX é para quem não vai sair do Gmail no desktop, mas não quer que ele guarde um arquivo legível da sua vida.'
+        a: 'O Proton é uma boa escolha se você topa mudar para uma caixa nova. O ZeroMX mantém a caixa e a conta que você já tem, não guarda nenhum e-mail seu e custa menos. Seu provedor só deixa de conseguir ler.'
+      },
+      {
+        q: 'Para onde vão meus e-mails? O relay manda direto para o meu computador?',
+        a: 'Não. O relay sela cada mensagem e entrega na sua caixa, no Gmail por exemplo, como qualquer servidor de e-mail faria. Sua caixa é o armazenamento e o sync. Todos os seus aparelhos leem dela, então nada precisa estar ligado para receber e-mail, e não existe outra nuvem nem sincronização entre aparelhos.'
+      },
+      {
+        q: 'Eu uso Spark ou Apple Mail, não o Gmail no navegador.',
+        a: 'Então a extensão do navegador não ajuda você. O ZeroMX Bridge ajuda: um app pequeno no seu computador que lê sua caixa, decifra com a sua chave e entrega e-mail normal para o seu app, na sua própria máquina. Funciona como o Bridge do Proton e está planejado para o beta público. Dois limites honestos: os extras de nuvem do seu app, como push pelos servidores dele ou "Enviar depois", deixam de funcionar nessa conta, e o Bridge precisa rodar em cada computador onde você lê. Conte qual é o seu app no formulário da lista.'
+      },
+      {
+        q: 'Eu perco a busca do Gmail?',
+        a: 'Nos e-mails selados, o Gmail só vê envelopes, então a busca roda no seu aparelho, com os operadores que você já conhece: from:, subject:, has:attachment, before:, label: e os outros. O que você recebeu antes do ZeroMX continua buscável no Gmail. Busca dentro de PDFs anexados vem depois. Um modelo de IA local opcional responde perguntas sobre seus e-mails sem eles saírem do seu computador.'
       },
       {
         q: 'O que acontece no meu celular?',

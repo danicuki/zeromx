@@ -17,7 +17,8 @@ zeromx/
 │   ├── zeromx-attest/                 # AMD SEV-SNP & Intel TDX quote generation + no_std verification
 │   ├── zeromx-rln/                    # ZK Rate-Limiting Nullifier prover (Wasm) & verifier (PVM)
 │   ├── zeromx-relay/                  # Stateless Rust SMTP Ingress & Egress daemon for TEE Confidential VMs
-│   └── zeromx-mcp/                    # Local Model Context Protocol server binary / native messaging host
+│   ├── zeromx-mcp/                    # Local Model Context Protocol server binary / native messaging host
+│   └── zeromx-bridge/                 # Local IMAP/SMTP proxy for Apple Mail, Spark, Outlook, Thunderbird
 └── packages/
     ├── extension/                     # Manifest V3 WebExtension (Gmail & Outlook Web adapters + Shadow Composer)
     ├── search-worker/                 # Encrypted wa-sqlite (FTS5 + OPFS) Web Worker & cloud delta syncer

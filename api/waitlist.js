@@ -83,6 +83,7 @@ async function saveToPrivateGithubRepo(entry) {
         `| :--- | :--- |`,
         `| **Email** | \`${entry.email}\` |`,
         `| **Current Provider** | \`${entry.provider}\` |`,
+        `| **Reads Mail In** | \`${entry.mailClient}\` |`,
         `| **Owns Custom Domain** | \`${entry.ownsDomain}\` |`,
         `| **Preferred Model** | \`${entry.planInterest}\` |`,
         `| **Locale** | \`${entry.lang}\` |`,
@@ -101,7 +102,7 @@ async function sendWebhook(entry) {
   const webhookUrl = process.env.WAITLIST_WEBHOOK_URL;
   if (!webhookUrl) return false;
 
-  const summary = `🚀 **ZeroMX Waitlist**: \`${entry.email}\` | Provider: \`${entry.provider}\` | Domain: \`${entry.ownsDomain}\` | Interest: \`${entry.planInterest}\``;
+  const summary = `🚀 **ZeroMX Waitlist**: \`${entry.email}\` | Provider: \`${entry.provider}\` | Reads in: \`${entry.mailClient}\` | Domain: \`${entry.ownsDomain}\` | Interest: \`${entry.planInterest}\``;
   const res = await fetch(webhookUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -173,6 +174,7 @@ module.exports = async function handler(req, res) {
     const entry = {
       email,
       provider: sanitize(body.provider || 'gmail', 40),
+      mailClient: sanitize(body.mailClient || 'unspecified', 40),
       ownsDomain: sanitize(body.ownsDomain || 'yes', 20),
       planInterest: sanitize(body.planInterest || 'stake-dot', 40),
       lang: sanitize(body.lang || 'en', 10),

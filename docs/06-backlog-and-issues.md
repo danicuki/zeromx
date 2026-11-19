@@ -1,6 +1,6 @@
 # 06 — Epics & Actionable GitHub Issue Backlog
 
-This document breaks the ZeroMX roadmap into **8 Epics** and **33 concrete engineering issues** ready to be imported into GitHub Issues / Projects. Phase numbers follow [04 — Roadmap](04-roadmap.md). Design constraints follow [07 — Threat Model](07-threat-model-and-limits.md).
+This document breaks the ZeroMX roadmap into **8 Epics** and **36 concrete engineering issues** ready to be imported into GitHub Issues / Projects. Phase numbers follow [04 — Roadmap](04-roadmap.md). Design constraints follow [07 — Threat Model](07-threat-model-and-limits.md).
 
 ---
 
@@ -10,7 +10,7 @@ This document breaks the ZeroMX roadmap into **8 Epics** and **33 concrete engin
 | :--- | :--- | :--- | :--- |
 | **EPIC-1** | Cryptographic Core & MIME Envelope | Phase 0 | `HPKE`, `RFC 9788` metadata hiding, thread tokens, padding |
 | **EPIC-2** | Blind SMTP Relay Engine (`zeromx-relay`) | Phase 0–2 | Stateless Rust MTA, RAM spam filter, DKIM signing, TEE build |
-| **EPIC-3** | Browser Extension & Isolated Composer | Phase 0–1 | Gmail/Outlook cross-origin iframe decryptor & zero-leak reply |
+| **EPIC-3** | Browser Extension, Isolated Composer & Desktop Bridge | Phase 0–1 | Gmail/Outlook cross-origin iframe decryptor, zero-leak reply, local IMAP/SMTP Bridge for desktop mail apps |
 | **EPIC-4** | Control Plane: Transparency Log, JAM Service & Directory Client | Phase 1–2 | PVM RISC-V `Refine`/`Accumulate`, key transparency, TEE & RLN |
 | **EPIC-5** | Local Encrypted Search & MCP Server | Phase 1 | `wa-sqlite` `FTS5`, cloud delta sync, `zeromx-mcp` local AI |
 | **EPIC-6** | Mobile Companion & UX Gap Closers | Phase 2 | FaceID push decryptor PWA, `.ics` calendar helper, Vault Sweeper |
@@ -57,7 +57,7 @@ This document breaks the ZeroMX roadmap into **8 Epics** and **33 concrete engin
 
 ---
 
-### EPIC-3: Browser Extension & Isolated Composer (`packages/extension`)
+### EPIC-3: Browser Extension, Isolated Composer & Desktop Bridge (`packages/extension`, `crates/zeromx-bridge`)
 
 - **`ZMX-008` [P0] — Manifest V3 Extension Skeleton + Passkey (`WebAuthn PRF`) Key Vault**
   - **Scope:** Implement Passkey registration/unlock flow deriving `HPKE`, `SQLite`, and `RLN` subkeys via `HKDF`, plus printable 2-of-3 Shamir recovery share generator.
@@ -74,6 +74,10 @@ This document breaks the ZeroMX roadmap into **8 Epics** and **33 concrete engin
 - **`ZMX-011` [P1] — Built-in Fallback Vault Reader Tab (DOM-Breakage Immunity)**
   - **Scope:** Add standalone inbox view inside the extension itself reading raw encrypted messages via standard OAuth APIs so users are never blocked if Gmail/Outlook alters webmail HTML.
   - **Acceptance Criteria:** Full read/search/reply functionality works even with webmail content scripts disabled.
+
+- **`ZMX-034` [P0 for beta] — ZeroMX Bridge: Local IMAP/SMTP Proxy for Desktop Mail Apps**
+  - **Scope:** Rust daemon (macOS first) that listens only on `127.0.0.1` with TLS and per-install credentials. Fetches sealed envelopes from the vault over IMAP, serves the decrypted inner message, seals every `APPEND` (drafts, sent copies) before it reaches the provider, answers IMAP `SEARCH` from a local encrypted index, and accepts SMTP submission (E2E seal for ZeroMX recipients, client-side `DKIM`, egress relay for the rest). Upstream sign-in by app password first, OAuth later. Spec in [02, section 4.4](02-technical-specification.md).
+  - **Acceptance Criteria:** Apple Mail, Spark, Outlook for Mac and Thunderbird each read, thread, search and reply on a sealed Gmail vault. A network capture of the upstream IMAP connection shows no plaintext body, subject, sender or draft. Two Macs running their own Bridge show the same mailbox with no sync between them.
 
 ---
 
@@ -110,6 +114,14 @@ This document breaks the ZeroMX roadmap into **8 Epics** and **33 concrete engin
 - **`ZMX-018` [P0] — `zeromx-mcp` Local MCP Server for Personal AI Agents**
   - **Scope:** Build `stdio`/localhost MCP server bridging to the local decrypted index (`search_messages`, `get_thread`, `create_encrypted_draft`, `extract_calendar_events`) with granular per-tool user consent.
   - **Acceptance Criteria:** Claude Desktop and Cursor can summarize encrypted threads and stage encrypted draft replies locally without exposing data to Google/Microsoft cloud AI.
+
+- **`ZMX-035` [P1] — Gmail-Style Search Operators over the Local Index**
+  - **Scope:** Parser for `from:`, `to:`, `cc:`, `subject:`, `has:attachment`, `filename:`, `before:`/`after:`/`older_than:`/`newer_than:`, `larger:`/`smaller:`, `label:`, `in:`, `is:unread`/`is:starred`, `OR`, `-`, quoted phrases and parentheses, mapped to `FTS5` `MATCH` plus metadata filters. Shared by the extension, the Bridge (IMAP `SEARCH`) and `zeromx-mcp`. Then attachment text extraction for PDFs.
+  - **Acceptance Criteria:** A test suite of real Gmail queries returns the same message set as Gmail does on an identical plaintext corpus. Queries over 50,000 messages answer in under 50ms on a mid-range laptop.
+
+- **`ZMX-036` [P2] — Optional On-Device Semantic Search**
+  - **Scope:** Opt-in local embedding index next to `FTS5`, and natural-language queries translated to operators by a local model. Nothing leaves the device. Disabled by default on hardware below a measured threshold.
+  - **Acceptance Criteria:** Published recall numbers on a labeled query set against keyword-only search; network capture shows no outbound traffic during indexing or querying.
 
 ---
 

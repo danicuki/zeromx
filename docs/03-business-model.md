@@ -22,6 +22,8 @@ The buyer is narrower than "everyone who uses Gmail", and the plan should be siz
 2. **Crypto-native users**, for whom a wallet, a stake, and a custom domain are normal.
 3. **Small regulated firms** (law, accounting, clinics) on Workspace or Microsoft 365. This is the B2B gateway, with different requirements (section 3, Model C).
 
+**People who read mail in a desktop app** (Apple Mail, Spark, Outlook) sit across all three groups. The extension does nothing for them, and ZeroMX Bridge (Phase 1) is what serves them. For them the closest alternative is Proton plus Proton Mail Bridge, and the advantage narrows to three things: a lower price, no account migration, and relays with attestation instead of one company's servers. The waitlist asks which app people read mail in, so the size of this group is measured before the Bridge is scheduled.
+
 Owning a custom domain is the main funnel constraint. Onboarding must be able to **register a domain for the user, in the user's name**, in the same flow.
 
 ---

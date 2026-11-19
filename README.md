@@ -2,7 +2,7 @@
 
 **Keep your inbox. Make it blind.**
 
-ZeroMX seals the mail sent to your custom domain (`@yourdomain.com`) before it reaches your mailbox provider. Your provider stores ciphertext it cannot read, search, or scan. On desktop you keep reading and replying inside your normal webmail through a browser extension. On your phone you use the ZeroMX app.
+ZeroMX seals the mail sent to your custom domain (`@yourdomain.com`) before it reaches your mailbox provider. Your provider stores ciphertext it cannot read, search, or scan. On desktop you keep reading and replying inside your normal webmail through a browser extension, or in a desktop mail app (Apple Mail, Spark, Outlook, Thunderbird) through **ZeroMX Bridge**, a local IMAP/SMTP proxy. On your phone you use the ZeroMX app.
 
 Relays run in attested confidential VMs. Keys, relay measurements, and operators are recorded in a public control plane designed for **Polkadot JAM**. Gmail on desktop Chrome is the first supported vault. Outlook, iCloud, Fastmail and generic IMAP follow.
 
@@ -30,7 +30,7 @@ Relays run in attested confidential VMs. Keys, relay measurements, and operators
 │   ├── 03-business-model.md           # Storage arbitrage unit economics, Stake-to-Use (DOT) & B2B gateway
 │   ├── 04-roadmap.md                  # Private alpha to open network, external gates & top risks
 │   ├── 05-development-plan.md         # Target Rust/TS monorepo layout, reproducible TEE builds & QA plan
-│   ├── 06-backlog-and-issues.md       # Prioritized Epics & 33 actionable GitHub issues (ZMX-001..ZMX-033)
+│   ├── 06-backlog-and-issues.md       # Prioritized Epics & 36 actionable GitHub issues (ZMX-001..ZMX-036)
 │   ├── 07-threat-model-and-limits.md  # What is protected, who is trusted, known limits, claims we do not make
 │   └── 08-why-polkadot-jam.md         # What JAM adds, what it lacks today, and a review of the "only JAM" argument
 └── vercel.json                        # Zero-config static deployment configuration for Vercel
@@ -41,7 +41,7 @@ Relays run in attested confidential VMs. Keys, relay measurements, and operators
 ## Documentation Index
 
 1. **[01 — Architecture Overview](docs/01-architecture.md)**: Data plane vs. control plane, the three mail flows, relay operators, and the three assurance tiers.
-2. **[02 — Technical Specification](docs/02-technical-specification.md)**: Hybrid post-quantum `HPKE` envelopes with `RFC 9788` protected headers, pseudonymized threading, Padmé padding, the control plane (transparency log, then JAM service), relay daemon, Passkey (`WebAuthn PRF`) keys, local search, and Local MCP server.
+2. **[02 — Technical Specification](docs/02-technical-specification.md)**: Hybrid post-quantum `HPKE` envelopes with `RFC 9788` protected headers, pseudonymized threading, Padmé padding, the control plane (transparency log, then JAM service), relay daemon, Passkey (`WebAuthn PRF`) keys, local search with Gmail-style operators, ZeroMX Bridge for desktop mail apps, and Local MCP server.
 3. **[03 — Business Model](docs/03-business-model.md)**: Who buys this, cost structure, subscription pricing, optional Stake-to-Use, and the B2B gateway's requirements.
 4. **[04 — Product & Engineering Roadmap](docs/04-roadmap.md)**: Private alpha to open network, with external gates and top risks.
 5. **[05 — Development Plan](docs/05-development-plan.md)**: Proposed Rust + TypeScript monorepo architecture, reproducible enclave builds, security auditing, and test harnesses.
@@ -85,7 +85,7 @@ vercel --prod   # Deploy to production
 
 ## Capturing Waitlist Signups (`POST /api/waitlist`)
 
-Every waitlist signup captures the email, current email provider (`gmail`, `outlook`, `icloud`, `other`), custom-domain ownership, and what brings the person here (`fiat-sub`, `stake-dot`, `b2b-team`, `run-node`, `invest`, `contribute`). The investor and developer buttons on the page open the same form with `invest` or `contribute` preselected.
+Every waitlist signup captures the email, current email provider (`gmail`, `outlook`, `icloud`, `other`), the app the person reads mail in (`webmail`, `apple-mail`, `spark`, `outlook-app`, `other-app`, `phone`, or `unspecified` if left blank; this sizes the demand for ZeroMX Bridge), custom-domain ownership, and what brings the person here (`fiat-sub`, `stake-dot`, `b2b-team`, `run-node`, `invest`, `contribute`). The investor and developer buttons on the page open the same form with `invest` or `contribute` preselected.
 
 > [!IMPORTANT]
 > **Configure at least one storage backend before sharing the link.** Vercel runtime logs expire, so they are not a waitlist. If no backend below stores the entry, the endpoint answers `503` and the form shows an error, instead of confirming a signup that was never saved.

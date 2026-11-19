@@ -11,7 +11,7 @@ The original plan put attested relays, an on-chain verifier, zero-knowledge anti
 
 ```mermaid
 flowchart LR
-    P0["Phase 0: Private Alpha<br/>Gmail + Chrome, team-run relay"] --> P1["Phase 1: Public Beta<br/>attested relays, audit, mobile app"]
+    P0["Phase 0: Private Alpha<br/>Gmail + Chrome, team-run relay"] --> P1["Phase 1: Public Beta<br/>attested relays, audit, mobile app, Bridge"]
     P1 --> P2["Phase 2: Open Network<br/>independent operators, JAM service"]
     P2 --> P3["Phase 3: Split Trust<br/>Tier 3, open operator set"]
     P1 --> B["B2B Gateway<br/>org keys, dedicated relays"]
@@ -38,19 +38,20 @@ flowchart LR
 
 ## Phase 1 — Public Beta (about 6 more months)
 
-**Goal:** remove the two biggest objections, "the phone is broken" and "why should I trust your relay".
+**Goal:** remove the three biggest objections: "the phone is broken", "I don't use Gmail in a browser", and "why should I trust your relay".
 
 - **Deliverables:**
   - **Native mobile app** (iOS first) with relay-sealed push previews, read, and reply.
+  - **ZeroMX Bridge** (macOS first, then Windows and Linux): a local IMAP/SMTP proxy that reads the vault over IMAP, decrypts with the user's key, and serves plain mail to Apple Mail, Spark, Outlook or Thunderbird on `127.0.0.1`. Each computer runs its own Bridge and builds its own index from the mailbox, so no index sync is needed on desktop. See [02, section 4.4](02-technical-specification.md). This was a Phase 3 item. Early feedback from people who read mail in a desktop app moved it here.
   - **Witnessed transparency log** for keys, operators, and the measurement allowlist, anchored to Polkadot.
   - **Reproducible relay image** and client-side attestation verification, shown in the UI per message.
-  - **Local search** (`SQLite FTS5`) over rendered and newly received mail, and **`zeromx-mcp`**.
+  - **Local search** (`SQLite FTS5`) over rendered and newly received mail, with **Gmail-style operators** (`from:`, `to:`, `subject:`, `has:attachment`, `filename:`, `before:`/`after:`, `larger:`, `label:`, `is:unread`, `OR`, `-`, quoted phrases), and **`zeromx-mcp`**. Optional on-device semantic search follows when it is ready, not as a launch item.
   - Per-sender aliases and one-click `.ics` handling.
   - Domain registration inside onboarding.
   - Paid plans.
 - **External gates:**
   - **Independent audit** of the extension, crypto library, and relay image. Public beta does not open before the report is published.
-  - **Gmail API verification and security assessment**, only if full-archive indexing ships in this phase.
+  - **Gmail API verification and security assessment**, only if full-archive indexing ships in this phase, or if the Bridge signs in with OAuth instead of an app password.
 - **Exit criteria:** 1,000 active domains. Inbound loss rate and outbound inbox-placement measured and published. No open high-severity audit findings.
 
 ## Phase 2 — Open Network
@@ -76,7 +77,6 @@ flowchart LR
   - **Tier-3 ingress (`2PC-TLS`)** across Intel TDX and AMD SEV-SNP operator pairs.
   - `RLN` anonymous rate limiting and on-chain abuse proofs.
   - Permissionless operator registration, enabled only for Tier-3 pairs.
-  - Standalone local-first desktop client (IMAP/JMAP) for users who want no dependency on a webmail page.
 
 ## B2B Gateway (parallel track, starts after the Phase 1 audit)
 
@@ -92,7 +92,9 @@ flowchart LR
 | Risk | Phase | Response |
 | :--- | :--- | :--- |
 | Gmail spam-folders or throttles sealed envelopes from relay addresses | 0 | Measure in the first week of alpha. Per-user allow filter in onboarding. Dedicated sending domains with full authentication. If unsolvable, switch delivery to IMAP append with the user's own credentials. |
-| Webmail markup changes break the extension | 0+ | Minimal DOM surface, nightly canary against live accounts, standalone reader tab in the extension. |
+| Webmail markup changes break the extension | 0+ | Minimal DOM surface, nightly canary against live accounts, standalone reader tab in the extension. The Bridge does not depend on webmail markup at all. |
+| Many target users read mail in a desktop app, not in a browser | 0 | The waitlist asks which app people read mail in. The Bridge ships in Phase 1. If the share is high, the Bridge moves ahead of the Outlook web adapter. |
+| Google ends app passwords for IMAP | 1 | The Bridge also supports OAuth, which needs Google's restricted-scope verification and yearly assessment. Budget it as soon as the Bridge is committed to. |
 | Extension update channel is a single point of compromise | 1 | Reproducible builds, two-party release signing, delayed updates with public diff. |
 | Confidential-VM hardware break | 1+ | Team-run then vetted operators, fast measurement revocation, Tier 3. |
 | JAM mainnet or light client slips | 2 | Phases 0 and 1 do not depend on either. The Polkadot Hub bridge step is the fallback. JAM light clients are being built by other teams, and ZeroMX adopts one when it is ready. |
