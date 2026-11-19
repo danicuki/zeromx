@@ -396,7 +396,7 @@ const TRANSLATIONS = {
       '<strong>The relay’s moment with outside mail.</strong> Attestation narrows who could read it. It doesn’t prove nobody did.',
       '<strong>A compromised device or a stolen key.</strong>'
     ],
-    trust_note: '<strong>Who is still trusted at alpha:</strong> the ZeroMX team runs the relays and publishes the extension. Reproducible builds, per-message relay verification, independent operators and split trust each remove part of that, in that order.',
+    trust_note: '<strong>Who is still trusted at alpha:</strong> the ZeroMX team runs the relays and publishes the extension. Reproducible builds, per-message relay verification, independent operators and split trust each remove part of that, in that order. <a href="https://github.com/danicuki/zeromx/blob/main/docs/07-threat-model-and-limits.md" target="_blank" rel="noopener">Read the full threat model on GitHub →</a>',
 
     onboard_tag: 'Getting started',
     onboard_title: 'One requirement: an address on your own domain.',
@@ -507,20 +507,20 @@ const TRANSLATIONS = {
 
     dev_modal: {
       tag: 'OPEN-SOURCE CONTRIBUTORS',
-      title: 'Request early repository access',
-      sub: 'Tell Daniel your email and what you’d like to hack on (Rust/Wasm crypto, SEV-SNP/TDX Nix builds, Chrome MV3, or Polkadot JAM PVM).',
+      title: 'Want to help build ZeroMX?',
+      sub: 'The repository is public at github.com/danicuki/zeromx. Drop your email and GitHub handle if you want to coordinate on an epic (Rust/Wasm crypto, SEV-SNP/TDX Nix builds, Chrome MV3, or Polkadot JAM PVM).',
       emailLabel: 'Email',
       emailPh: 'you@domain.dev',
       noteLabel: 'GitHub handle & area of interest',
       notePh: '@handle — interested in PVM attestation verifier / Gmail MV3 adapter',
-      submitBtn: 'Request access',
-      doneTitle: 'Request sent.',
-      doneBody: 'We’ll add you or send the public release link as soon as the spec tag cuts.'
+      submitBtn: 'Say hi to Daniel',
+      doneTitle: 'Message sent.',
+      doneBody: 'Thanks — Daniel will follow up directly. Meanwhile feel free to open an issue or PR on GitHub.'
     },
 
     dev_tag: 'For developers',
     dev_title: 'Hard problems, meant to be solved in the open.',
-    dev_lede: 'Client, relay and protocol are meant to be open source with reproducible builds. The repository is private while the design settles. Ask for access and pick one of these.',
+    dev_lede: 'Client, relay and protocol are designed and built in the open with reproducible builds. Read the full spec, threat model and backlog on GitHub, or pick one of these problems.',
     dev_stack: ['Rust', 'WebAssembly', 'TypeScript', 'HPKE + ML-KEM', 'SEV-SNP / TDX', 'Polkadot JAM (PVM)', 'WebAuthn PRF', 'SQLite FTS5', 'MCP'],
     dev_problems: [
       { t: 'Private key lookups', b: 'Find a recipient’s key without telling the server who you are about to email.', tag: 'Rust · Wasm · PIR' },
@@ -530,7 +530,9 @@ const TRANSLATIONS = {
       { t: 'Reproducible confidential-VM images', b: 'A relay image anyone can rebuild bit for bit and match against the attested measurement.', tag: 'Nix · SEV-SNP · TDX' },
       { t: 'Attestation checks as a JAM service', b: 'Verify vendor certificate chains and measurements in Refine. Record operators and keys in Accumulate.', tag: 'Rust no_std · PVM' }
     ],
-    dev_cta: 'Ask for repository access',
+    dev_cta_github: 'Browse repo & specs on GitHub →',
+    dev_cta_threat: 'Read threat model',
+    dev_cta: 'Want to contribute?',
 
     jam_title: 'Why the control plane targets Polkadot JAM',
     jam_points: [
@@ -1050,7 +1052,7 @@ const TRANSLATIONS = {
       '<strong>O instante do relay com e-mails de fora.</strong> A atestação reduz quem poderia ler. Ela não prova que ninguém leu.',
       '<strong>Um dispositivo comprometido ou uma chave roubada.</strong>'
     ],
-    trust_note: '<strong>Em quem ainda se confia no alpha:</strong> a equipe do ZeroMX opera os relays e publica a extensão. Builds reproduzíveis, verificação do relay por mensagem, operadores independentes e confiança dividida removem cada um uma parte disso, nessa ordem.',
+    trust_note: '<strong>Em quem ainda se confia no alpha:</strong> a equipe do ZeroMX opera os relays e publica a extensão. Builds reproduzíveis, verificação do relay por mensagem, operadores independentes e confiança dividida removem cada um uma parte disso, nessa ordem. <a href="https://github.com/danicuki/zeromx/blob/main/docs/07-threat-model-and-limits.md" target="_blank" rel="noopener">Ler o modelo de ameaças completo no GitHub →</a>',
 
     onboard_tag: 'Como começar',
     onboard_title: 'Um requisito: um endereço no seu próprio domínio.',
@@ -1161,20 +1163,20 @@ const TRANSLATIONS = {
 
     dev_modal: {
       tag: 'CONTRIBUIDORES OPEN-SOURCE',
-      title: 'Pedir acesso antecipado ao repositório',
-      sub: 'Informe seu e-mail e em que frente você gostaria de contribuir (cripto Rust/Wasm, imagens Nix SEV-SNP/TDX, Chrome MV3 ou PVM no Polkadot JAM).',
+      title: 'Quer ajudar a construir o ZeroMX?',
+      sub: 'O repositório já é público em github.com/danicuki/zeromx. Deixe seu e-mail e GitHub se quiser coordenar em alguma frente (cripto Rust/Wasm, imagens Nix SEV-SNP/TDX, Chrome MV3 ou PVM no Polkadot JAM).',
       emailLabel: 'E-mail',
       emailPh: 'voce@dominio.dev',
       noteLabel: 'Usuário GitHub e área de interesse',
       notePh: '@usuario — interesse no verificador PVM / adaptador Gmail MV3',
-      submitBtn: 'Pedir acesso',
-      doneTitle: 'Pedido enviado.',
-      doneBody: 'Vamos liberar acesso ou avisar assim que a tag pública da especificação sair.'
+      submitBtn: 'Falar com o Daniel',
+      doneTitle: 'Mensagem enviada.',
+      doneBody: 'Obrigado — o Daniel responderá direto. Enquanto isso, fique à vontade para abrir uma issue ou PR no GitHub.'
     },
 
     dev_tag: 'Para desenvolvedores',
     dev_title: 'Problemas difíceis, para resolver às claras.',
-    dev_lede: 'Cliente, relay e protocolo foram pensados para ser código aberto, com builds reproduzíveis. O repositório está privado enquanto o design se assenta. Peça acesso e escolha um destes.',
+    dev_lede: 'Cliente, relay e protocolo são desenhados e construídos às claras, com builds reproduzíveis. Leia a especificação completa, o modelo de ameaças e o backlog no GitHub, ou escolha um destes problemas.',
     dev_stack: ['Rust', 'WebAssembly', 'TypeScript', 'HPKE + ML-KEM', 'SEV-SNP / TDX', 'Polkadot JAM (PVM)', 'WebAuthn PRF', 'SQLite FTS5', 'MCP'],
     dev_problems: [
       { t: 'Consultas privadas de chaves', b: 'Encontrar a chave de um destinatário sem contar ao servidor para quem você vai escrever.', tag: 'Rust · Wasm · PIR' },
@@ -1184,7 +1186,9 @@ const TRANSLATIONS = {
       { t: 'Imagens reproduzíveis de VM confidencial', b: 'Uma imagem de relay que qualquer pessoa reconstrói bit a bit e compara com a medição atestada.', tag: 'Nix · SEV-SNP · TDX' },
       { t: 'Verificação de atestação como serviço JAM', b: 'Verificar cadeias de certificados dos fabricantes e medições no Refine. Registrar operadores e chaves no Accumulate.', tag: 'Rust no_std · PVM' }
     ],
-    dev_cta: 'Pedir acesso ao repositório',
+    dev_cta_github: 'Ver repositório e specs no GitHub →',
+    dev_cta_threat: 'Ler modelo de ameaças',
+    dev_cta: 'Quero contribuir',
 
     jam_title: 'Por que o plano de controle mira o Polkadot JAM',
     jam_points: [

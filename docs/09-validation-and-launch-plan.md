@@ -28,7 +28,7 @@ Every visitor action emits first-party, cookie-free aggregate counts via `POST /
 
 1. **Verify Live Storage & Funnel:** Ensure Upstash Redis (`KV_REST_API_*` or `UPSTASH_REDIS_REST_*`) is linked in Vercel -> Storage, and test one real signup end-to-end on `https://zeromx.cukier.xyz/` (both Step 1 signup and Step 2 Founding Slot click).
 2. **Verify Social Card Cache:** Paste `https://zeromx.cukier.xyz/` into LinkedIn Post Inspector (`linkedin.com/post-inspector`) and `opengraph.xyz` to confirm the new 1200×630 `og.png` loads cleanly with zero overlap.
-3. **Make `docs/` + `site/` Public on GitHub:** Privacy and security communities (HN, `r/privacy`, Lobste.rs) distrust closed-repo privacy pitches. Your honest `docs/07-threat-model-and-limits.md` and `docs/08-why-polkadot-jam.md` are your strongest credibility assets — let engineers inspect them publicly.
+3. **Public GitHub Repo (`docs/` + `site/`):** DONE — live at `https://github.com/danicuki/zeromx` (including public `docs/07-threat-model-and-limits.md` and `docs/08-why-polkadot-jam.md`).
 4. **Enable Vercel Web Analytics** (1 click in Vercel Dashboard -> Analytics; already wired to `/_vercel/insights/script.js` under CSP `'self'`).
 
 ---

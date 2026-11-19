@@ -2201,6 +2201,19 @@ section {
 .band-ink .band-cta {
   border-top-color: var(--vault-line);
   justify-content: flex-start;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btn-ghost-dark {
+  background: transparent;
+  color: var(--paper);
+  border-color: rgba(243, 239, 230, 0.35);
+}
+
+.btn-ghost-dark:hover {
+  border-color: var(--paper);
+  background: rgba(243, 239, 230, 0.08);
 }
 
 /* ---------- Roadmap ---------- */
