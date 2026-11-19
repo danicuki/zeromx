@@ -40,10 +40,17 @@ function getSource() {
   return 'direct';
 }
 
+window.va = window.va || function () {
+  (window.vaq = window.vaq || []).push(arguments);
+};
+
 function trackEvent(event, once = false) {
   if (once && state.tracked.has(event)) return;
   if (once) state.tracked.add(event);
   if (['localhost', '127.0.0.1', ''].includes(window.location.hostname)) return;
+  if (typeof window.va === 'function' && event !== 'pageview') {
+    window.va('event', { name: event });
+  }
   fetch('/api/event', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
