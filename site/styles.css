@@ -364,7 +364,7 @@ code {
 
 .hero-inner {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr);
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
   gap: 64px;
   align-items: center;
 }
@@ -401,8 +401,8 @@ code {
 .hero h1 {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: clamp(3.1rem, 6.9vw, 6.3rem);
-  line-height: 0.96;
+  font-size: clamp(2.7rem, 5.05vw, 3.9rem);
+  line-height: 0.98;
   letter-spacing: -0.022em;
   margin-bottom: 30px;
 }
@@ -535,6 +535,11 @@ code {
   font-size: 0.78rem;
 }
 
+/* The seam hides the left of the dark pane, so its values sit on the right. */
+.lens-cipher .lens-row span:last-child {
+  text-align: right;
+}
+
 .lens-row span:first-child {
   font-family: var(--font-mono);
   font-size: 0.66rem;
@@ -598,6 +603,7 @@ code {
 .lens-cipher .lens-attach {
   flex: none;
   align-self: stretch;
+  justify-content: flex-end;
   border-color: var(--vault-line);
   background: var(--vault-2);
   color: var(--cipher);
@@ -928,7 +934,7 @@ section {
   color: #f4fff8;
 }
 
-.seg-btn.view-bigtech.active {
+.seg-btn.view-storage.active {
   background: var(--vault);
   color: var(--paper);
 }
@@ -942,7 +948,7 @@ section {
   --w-text-3: var(--ink-3);
   --w-line: var(--line);
   --w-field: #ffffff;
-  --provider-accent: #ea4335;
+  --provider-accent: var(--ok);
   background: var(--w-bg);
   color: var(--w-text);
   border: 1.5px solid var(--ink);
@@ -952,11 +958,7 @@ section {
   transition: background 0.35s, color 0.35s;
 }
 
-.mail-window.provider-outlook {
-  --provider-accent: #0f6cbd;
-}
-
-.mail-window.view-bigtech {
+.mail-window.view-storage {
   --w-bg: var(--vault);
   --w-bar: #171712;
   --w-side: #131310;
@@ -1091,7 +1093,7 @@ section {
   color: #14522f;
 }
 
-.status-banner.banner-bigtech {
+.status-banner.banner-storage {
   background: #1d1c16;
   color: #d9d3c1;
 }
@@ -1139,7 +1141,7 @@ section {
   box-shadow: 3px 3px 0 var(--ink);
 }
 
-.view-bigtech .compose-btn {
+.view-storage .compose-btn {
   border-color: var(--vault-line);
   box-shadow: none;
 }
@@ -1329,7 +1331,7 @@ section {
   border: 1px solid var(--vault-line);
 }
 
-.view-bigtech .badge-plain {
+.view-storage .badge-plain {
   color: #e2b25c;
   border-color: rgba(226, 178, 92, 0.5);
   background: rgba(226, 178, 92, 0.1);
@@ -1469,14 +1471,14 @@ section {
   flex-wrap: wrap;
 }
 
-.view-bigtech .detail-actions .btn {
+.view-storage .detail-actions .btn {
   border-color: var(--paper);
   color: var(--paper);
   box-shadow: none;
   background: transparent;
 }
 
-.view-bigtech .detail-actions .btn:hover {
+.view-storage .detail-actions .btn:hover {
   background: var(--paper);
   color: var(--ink);
   transform: none;
@@ -3158,7 +3160,7 @@ section {
   }
 
   .hero h1 {
-    font-size: clamp(2.7rem, 13.2vw, 3.6rem);
+    font-size: clamp(2.1rem, 10.6vw, 3.6rem);
   }
 
   .pillars-grid,

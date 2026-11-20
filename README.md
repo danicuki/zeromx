@@ -1,12 +1,19 @@
 # ZeroMX
 
-**Keep your inbox. Make it blind.**
+**A mailbox only you can open. And you own it.**
 
-ZeroMX seals the mail sent to your custom domain (`@yourdomain.com`) before it reaches your mailbox provider. Your provider stores ciphertext it cannot read, search, or scan. On desktop you keep reading and replying inside your normal webmail through a browser extension, or in a desktop mail app (Apple Mail, Spark, Outlook, Thunderbird) through **ZeroMX Bridge**, a local IMAP/SMTP proxy. On your phone you use the ZeroMX app.
+Email has sovereignty without privacy: an address on your own domain is yours, and whoever stores your mailbox can read all of it. Messengers have privacy without sovereignty. ZeroMX is built to give both.
 
-Relays run in attested confidential VMs. Keys, relay measurements, and operators are recorded in a public control plane designed for **Polkadot JAM**. Gmail on desktop Chrome is the first supported vault. Outlook, iCloud, Fastmail and generic IMAP follow.
+It has four parts, and each can be replaced without changing your address:
 
-**Status: design stage.** Nothing here is in production. What the system protects, what it does not, and who is still trusted are stated in [docs/07](docs/07-threat-model-and-limits.md).
+- **Relays** are the mail servers the world sees for your domain (`@yourdomain.com`). A relay seals each message to your public key inside an attested confidential VM, writes the sealed file to your storage, and keeps nothing.
+- **Storage you control** holds only sealed files: ZeroMX Storage by default, or your own S3-compatible bucket.
+- **Your devices** hold the private key and a full local copy, and search locally. On a computer, **ZeroMX Bridge** (a local IMAP/SMTP server) serves the mail to Apple Mail, Outlook or Thunderbird. On a phone you use the ZeroMX app.
+- **A public directory** of keys, relay measurements and operators that nobody can quietly rewrite, including the ZeroMX team. It is deployed on **Polkadot**: a signed log first, a contract on Polkadot Hub at the beta, a JAM service as the target.
+
+Privacy does not depend on a blockchain. Polkadot is what keeps the directory, the operator list and your name out of any company's hands, including ours. The product never requires the Polkadot app.
+
+**Status: design stage.** Nothing here is in production. The first alpha is desktop only, with relays run by the team. What the system protects, what it does not, and who is still trusted are stated in [docs/07](docs/07-threat-model-and-limits.md).
 
 ---
 
@@ -28,14 +35,14 @@ Relays run in attested confidential VMs. Keys, relay measurements, and operators
 │   ├── waitlist.js                    # POST /api/waitlist multi-step lead + WTP + investor/dev handler
 │   └── event.js                       # POST /api/event zero-cookie aggregate funnel counter
 ├── docs/                              # Architecture, Technical Spec, Business Model, Roadmap & Backlog
-│   ├── 01-architecture.md             # System architecture, Mermaid sequence diagrams & assurance tiers
-│   ├── 02-technical-specification.md  # Cryptographic envelope, Polkadot JAM PVM service, TEE relays & MCP
-│   ├── 03-business-model.md           # Storage arbitrage unit economics, Stake-to-Use (DOT) & B2B gateway
-│   ├── 04-roadmap.md                  # Private alpha to open network, external gates & top risks
-│   ├── 05-development-plan.md         # Target Rust/TS monorepo layout, reproducible TEE builds & QA plan
-│   ├── 06-backlog-and-issues.md       # Prioritized Epics & 37 actionable GitHub issues (ZMX-000..ZMX-036)
+│   ├── 01-architecture.md             # Relays, storage, devices, directory: flows, storage options, clients, tiers
+│   ├── 02-technical-specification.md  # Sealed file format, storage & sync, directory, relay daemon, Bridge & clients
+│   ├── 03-business-model.md           # Who buys, cost structure, pricing, optional DOT stake & B2B gateway
+│   ├── 04-roadmap.md                  # Private alpha to open network, week-1 gates, external gates & top risks
+│   ├── 05-development-plan.md         # Target Rust monorepo layout, guardrails, reproducible builds & QA matrix
+│   ├── 06-backlog-and-issues.md       # 10 Epics & 47 issue entries (ZMX-000..ZMX-046): 42 active, 5 dropped
 │   ├── 07-threat-model-and-limits.md  # What is protected, who is trusted, known limits, claims we do not make
-│   ├── 08-why-polkadot-jam.md         # What JAM adds, what it lacks today, and a review of the "only JAM" argument
+│   ├── 08-why-polkadot-jam.md         # Why Polkadot, what it gives and does not, and the "only JAM" argument reviewed
 │   └── 09-validation-and-launch-plan.md # 14-day demand validation, WTP test & launch playbook
 └── vercel.json                        # Zero-config static deployment configuration for Vercel
 ```
@@ -44,14 +51,15 @@ Relays run in attested confidential VMs. Keys, relay measurements, and operators
 
 ## Documentation Index
 
-1. **[01 — Architecture Overview](docs/01-architecture.md)**: Data plane vs. control plane, the three mail flows, relay operators, and the three assurance tiers.
-2. **[02 — Technical Specification](docs/02-technical-specification.md)**: Hybrid post-quantum `HPKE` envelopes with `RFC 9788` protected headers, pseudonymized threading, Padmé padding, the control plane (transparency log, then JAM service), relay daemon, Passkey (`WebAuthn PRF`) keys, local search with Gmail-style operators, ZeroMX Bridge for desktop mail apps, and Local MCP server.
-3. **[03 — Business Model](docs/03-business-model.md)**: Who buys this, cost structure, subscription pricing, optional Stake-to-Use, and the B2B gateway's requirements.
-4. **[04 — Product & Engineering Roadmap](docs/04-roadmap.md)**: Private alpha to open network, with external gates and top risks.
-5. **[05 — Development Plan](docs/05-development-plan.md)**: Proposed Rust + TypeScript monorepo architecture, reproducible enclave builds, security auditing, and test harnesses.
+1. **[01 — Architecture Overview](docs/01-architecture.md)**: The thesis, the four planes (relays, storage, devices, directory), the mail flows, storage options, clients, relay operators, and the three assurance tiers.
+2. **[02 — Technical Specification](docs/02-technical-specification.md)**: The hybrid post-quantum `HPKE` sealed file format with Padmé padding, storage layout and adapters, write-only relay credentials, accept-after-write delivery, state sync through per-device sealed logs, the public directory (signed log, Polkadot Hub contract, JAM service), the relay daemon, device keys and recovery, local search with Gmail-style operators, ZeroMX Bridge, the phone app, and the local MCP server.
+3. **[03 — Business Model](docs/03-business-model.md)**: Who buys this, cost structure, subscription pricing, the planned free tier, optional Stake-to-Use, the B2B gateway's requirements, and where DOT demand comes from.
+4. **[04 — Product & Engineering Roadmap](docs/04-roadmap.md)**: Private alpha to open network, with week-1 gates, external gates and top risks.
+5. **[05 — Development Plan](docs/05-development-plan.md)**: Proposed Rust monorepo architecture, release integrity, storage-credential scoping tests, platform independence in CI, and the QA matrix.
 6. **[06 — Epics, Backlog & GitHub Issues](docs/06-backlog-and-issues.md)**: Engineering backlog with acceptance criteria.
-7. **[07 — Threat Model, Trust Boundaries & Known Limits](docs/07-threat-model-and-limits.md)**: What is protected, who is still trusted, the corrections made to the original design, and the claims the project does not make. **Start here.**
-8. **[08 — Why Polkadot JAM](docs/08-why-polkadot-jam.md)**: What JAM genuinely adds to the control plane, what it does not provide yet, the alternatives compared, and what that means for the plan.
+7. **[07 — Threat Model, Trust Boundaries & Known Limits](docs/07-threat-model-and-limits.md)**: What is protected, who is still trusted, why the design changed, and the claims the project does not make. **Start here.**
+8. **[08 — Why Polkadot](docs/08-why-polkadot-jam.md)**: Why ZeroMX is not an "only JAM" product, what Polkadot adds, how its pieces are used without depending on the Polkadot app, what ZeroMX gives the ecosystem, and what is still unverified.
+9. **[09 — Validation & Launch Plan](docs/09-validation-and-launch-plan.md)**: The 14-day demand test, the willingness-to-pay signal, the distribution waves, and the go / pivot / kill gate.
 
 ---
 
@@ -89,7 +97,7 @@ vercel --prod   # Deploy to production
 
 ## Capturing Waitlist Signups (`POST /api/waitlist`)
 
-Every waitlist signup captures the email, current email provider (`gmail`, `outlook`, `icloud`, `other`), the app the person reads mail in (`webmail`, `apple-mail`, `spark`, `outlook-app`, `other-app`, `phone`, or `unspecified` if left blank; this sizes the demand for ZeroMX Bridge), custom-domain ownership, and what brings the person here (`fiat-sub`, `stake-dot`, `b2b-team`, `run-node`, `invest`, `contribute`). The investor and developer buttons on the page open the same form with `invest` or `contribute` preselected.
+Every waitlist signup captures the email, current email provider (`gmail`, `outlook`, `icloud`, `other`), the app the person reads mail in (`webmail`, `apple-mail`, `spark`, `outlook-app`, `other-app`, `phone`, or `unspecified` if left blank; this shows how many signups the desktop-only alpha with ZeroMX Bridge can serve), custom-domain ownership, and what brings the person here (`fiat-sub`, `stake-dot`, `b2b-team`, `run-node`, `invest`, `contribute`). The investor and developer buttons on the page open the same form with `invest` or `contribute` preselected.
 
 > [!IMPORTANT]
 > **Configure at least one storage backend before sharing the link.** Vercel runtime logs expire, so they are not a waitlist. If no backend below stores the entry, the endpoint answers `503` and the form shows an error, instead of confirming a signup that was never saved.

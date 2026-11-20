@@ -2,7 +2,7 @@
 
 const state = {
   lang: 'en',
-  provider: 'gmail',
+  storage: 'managed',
   view: 'user',
   selectedId: 'm1',
   searchQuery: '',
@@ -114,26 +114,20 @@ function hexToken(seed, length) {
     .join('');
 }
 
-function envelopeText(mail) {
+/* What a sealed file looks like to whoever hosts the storage: a short clear
+ * header and then bytes that mean nothing without the key. */
+function sealedFileText(mail) {
   const lines = [];
-  for (let i = 0; i < 7; i += 1) {
+  for (let i = 0; i < 8; i += 1) {
     lines.push(gibberish(`${mail.id}:${i}`, 60));
   }
   return [
-    '-----BEGIN ZEROMX ENVELOPE-----',
-    'Version: ZeroMX/1.0',
-    'Suite: HPKE X25519+ML-KEM-768, ChaCha20-Poly1305',
-    `Sealed-By: ${mail.sealedBy}`,
-    `Padding: Padme, ${mail.padded}`,
+    'ZeroMX/1.0  HPKE X25519+ML-KEM-768  ChaCha20-Poly1305',
+    `sealer   ${mail.sealedBy}`,
+    `padding  Padme, ${mail.padded}`,
     '',
-    ...lines,
-    `=${gibberish(`${mail.id}:crc`, 4)}`,
-    '-----END ZEROMX ENVELOPE-----'
+    ...lines
   ].join('\n');
-}
-
-function providerName() {
-  return state.provider === 'gmail' ? 'Google' : 'Microsoft';
 }
 
 function getAllEmails() {
@@ -149,9 +143,9 @@ function getFilteredEmails() {
     [mail.realFrom, mail.realSubject, mail.realBody].some((v) => v.toLowerCase().includes(q));
 
   return list.filter((mail) => {
-    if (state.view === 'user' || !mail.protected) return matchesReal(mail);
-    // The provider can only match what it can read: the opaque envelope fields.
-    return [mail.opaqueFrom, mail.opaqueSubject].some((v) => v.toLowerCase().includes(q));
+    if (state.view === 'user') return matchesReal(mail);
+    // The storage host can only match what it can read: the file name.
+    return mail.objKey.toLowerCase().includes(q);
   });
 }
 
@@ -180,8 +174,8 @@ function applyStaticTranslations() {
     if (typeof value === 'string') el.setAttribute('aria-label', value);
   });
 
-  document.getElementById('originPersonalChip').innerHTML = dict.originPersonal;
-  document.getElementById('originWorkChip').innerHTML = dict.originWork;
+  document.getElementById('sideChipA').innerHTML = dict.sideChipA;
+  document.getElementById('sideChipB').innerHTML = dict.sideChipB;
 
   document.getElementById('howSteps').innerHTML = dict.how_steps
     .map(
@@ -339,10 +333,10 @@ function renderLens() {
     </div>
     <div class="lens-pane lens-cipher" aria-hidden="true">
       <span class="lens-tab">${escapeHtml(L.cipherLabel)}</span>
-      <div class="lens-row"><span>${escapeHtml(L.fromLabel)}</span><span>${escapeHtml(L.cFrom)}</span></div>
-      <div class="lens-row"><span>${escapeHtml(L.subjectLabel)}</span><span>${escapeHtml(L.cSubject)}</span></div>
+      <div class="lens-row"><span>${escapeHtml(L.cFileLabel)}</span><span>${escapeHtml(L.cFile)}</span></div>
+      <div class="lens-row"><span>${escapeHtml(L.cSealerLabel)}</span><span>${escapeHtml(L.cSealer)}</span></div>
       <div class="lens-body" id="lensCipherBody">${gibberish('lens', 900)}</div>
-      <div class="lens-attach">${icon('lock')}<span>${gibberish('lens-att', 12)}.bin</span><small>${escapeHtml(L.cAttachMeta)}</small></div>
+      <div class="lens-attach">${icon('lock')}<span>${escapeHtml(L.cAttach)}</span><small>${escapeHtml(L.cAttachMeta)}</small></div>
     </div>
     <div class="lens-handle">
       <button type="button" class="lens-knob" role="slider" aria-orientation="horizontal"
@@ -460,21 +454,40 @@ function renderSimulator() {
   const mailList = document.getElementById('mailList');
   const mailDetail = document.getElementById('mailDetail');
 
-  const isGmail = state.provider === 'gmail';
   const isUser = state.view === 'user';
-  const provider = providerName();
+  const storage = state.storage;
 
-  win.className = `mail-window ${isGmail ? 'provider-gmail' : 'provider-outlook'}${isUser ? '' : ' view-bigtech'}`;
-  document.getElementById('providerTitle').textContent = isGmail ? dict.providerTitleGmail : dict.providerTitleOutlook;
-  document.getElementById('inboxCount').textContent = String(getAllEmails().length);
+  win.className = `mail-window storage-${storage}${isUser ? '' : ' view-storage'}`;
+  document.getElementById('windowTitle').textContent = isUser ? dict.windowTitleUser : dict.windowTitleStorage[storage];
+
+  // Folders exist only on the device. The storage host sees key prefixes.
+  const all = getAllEmails();
+  const sentCount = 18 + state.customSentByLang[state.lang].length;
+  const folders = isUser
+    ? [
+        [dict.folder_inbox, all.length],
+        [dict.folder_starred, 2],
+        [dict.folder_sent, sentCount]
+      ]
+    : [
+        ['in/', all.filter((m) => m.objKey.startsWith('in/')).length],
+        ['own/', sentCount + 1],
+        ['state/', 64]
+      ];
+  ['A', 'B', 'C'].forEach((slot, i) => {
+    const label = document.getElementById(`folder${slot}Label`);
+    label.textContent = folders[i][0];
+    label.classList.toggle('cipher-font', !isUser);
+    document.getElementById(`folder${slot}Count`).textContent = String(folders[i][1]);
+  });
 
   extensionBadge.className = `extension-pill ${isUser ? 'active-shield' : 'raw-server'}`;
-  extensionBadge.textContent = isUser ? dict.extActive : dict.extRaw(provider);
-  statusBanner.className = `status-banner ${isUser ? 'banner-user' : 'banner-bigtech'}`;
-  document.getElementById('statusBannerText').innerHTML = isUser ? dict.bannerUser : dict.bannerBigTech(provider);
+  extensionBadge.textContent = isUser ? dict.extActive : dict.extRaw[storage];
+  statusBanner.className = `status-banner ${isUser ? 'banner-user' : 'banner-storage'}`;
+  document.getElementById('statusBannerText').innerHTML = isUser ? dict.bannerUser : dict.bannerStorage[storage];
   document.getElementById('searchEngineStatus').textContent = isUser
     ? dict.searchStatusUser
-    : dict.searchStatusBigTech(provider);
+    : dict.searchStatusStorage;
 
   const filtered = getFilteredEmails();
 
@@ -482,7 +495,7 @@ function renderSimulator() {
     mailList.innerHTML = `
       <div class="empty-state">
         <strong>${escapeHtml(dict.noResultsTitle(state.searchQuery.trim()))}</strong>
-        <p>${escapeHtml(isUser ? dict.noResultsUser : dict.noResultsBigTech(provider))}</p>
+        <p>${escapeHtml(isUser ? dict.noResultsUser : dict.noResultsStorage[storage])}</p>
       </div>`;
     mailDetail.innerHTML = `<p class="empty-detail">${escapeHtml(dict.noMailSelected)}</p>`;
     return;
@@ -494,18 +507,12 @@ function renderSimulator() {
 
   mailList.innerHTML = filtered
     .map((m) => {
-      const showCipher = !isUser && m.protected;
+      const showCipher = !isUser;
       const cipherClass = showCipher ? ' cipher-font' : '';
-      const sender = showCipher ? m.opaqueFrom : m.realFrom;
-      const subject = showCipher ? m.opaqueSubject : m.realSubject;
+      const sender = showCipher ? m.objKey : m.realFrom;
+      const subject = showCipher ? `${m.padded} · ${m.sealedBy}` : m.realSubject;
       const snippet = showCipher ? gibberish(`${m.id}:snip`, 46) : m.realBody.replace(/\n+/g, ' ').slice(0, 80);
-      const badgeClass = showCipher
-        ? 'badge-cipher'
-        : m.tier === 'e2ee'
-        ? 'badge-e2ee'
-        : m.tier === 'tee'
-        ? 'badge-tee'
-        : 'badge-plain';
+      const badgeClass = showCipher ? 'badge-cipher' : m.tier === 'e2ee' ? 'badge-e2ee' : 'badge-tee';
 
       return `
         <button type="button" class="mail-row${m.id === state.selectedId ? ' selected' : ''}" data-mail-id="${escapeHtml(m.id)}">
@@ -529,19 +536,19 @@ function renderSimulator() {
 
   const current = filtered.find((m) => m.id === state.selectedId) || filtered[0];
 
-  if (!isUser && current.protected) {
+  if (!isUser) {
     mailDetail.innerHTML = `
       <div>
         <div class="detail-header">
-          <div class="detail-subject cipher-font">${escapeHtml(current.opaqueSubject)}</div>
+          <div class="detail-subject cipher-font">${escapeHtml(current.objKey)}</div>
           <dl class="detail-meta">
-            <dt>${escapeHtml(dict.envelopeFromLabel)}</dt><dd><code>${escapeHtml(current.opaqueFrom)}</code></dd>
-            <dt>${escapeHtml(dict.toLabel)}</dt><dd><code>${escapeHtml(current.realTo)}</code></dd>
+            <dt>${escapeHtml(dict.sizeLabel)}</dt><dd><code>${escapeHtml(current.padded)}</code></dd>
+            <dt>${escapeHtml(dict.writtenByLabel)}</dt><dd><code>${escapeHtml(current.sealedBy)}</code></dd>
           </dl>
         </div>
-        <div class="cipher-box">${escapeHtml(envelopeText(current))}</div>
+        <div class="cipher-box">${escapeHtml(sealedFileText(current))}</div>
         <div class="ai-probe-box">
-          <strong>${escapeHtml(dict.probeTitle(provider))}</strong>
+          <strong>${escapeHtml(dict.probeTitle[storage])}</strong>
           ${escapeHtml(dict.probeDesc)}
         </div>
       </div>
@@ -555,11 +562,8 @@ function renderSimulator() {
   const attachment = current.attachment
     ? `<div class="detail-attach">${icon('file')}<span>${escapeHtml(current.attachment.name)}</span><small>${escapeHtml(current.attachment.size)}</small></div>`
     : '';
-  const note = current.note && isUser ? `<p class="detail-note">${escapeHtml(current.note)}</p>` : '';
-  const mcpBox =
-    isUser && current.protected
-      ? `<div class="ai-probe-box"><strong>${escapeHtml(dict.mcpTitle)}</strong>${escapeHtml(dict.mcpDesc)}</div>`
-      : '';
+  const note = current.note ? `<p class="detail-note">${escapeHtml(current.note)}</p>` : '';
+  const mcpBox = `<div class="ai-probe-box"><strong>${escapeHtml(dict.mcpTitle)}</strong>${escapeHtml(dict.mcpDesc)}</div>`;
 
   mailDetail.innerHTML = `
     <div>
@@ -577,25 +581,18 @@ function renderSimulator() {
       ${mcpBox}
     </div>
     <div class="detail-actions">
-      ${
-        isUser
-          ? `<button type="button" class="btn btn-primary" id="replySecureBtn">${icon('reply')}${escapeHtml(dict.replySecureBtn)}</button>
-             <button type="button" class="btn btn-ghost" id="peekServerBtn">${icon('disk')}${escapeHtml(dict.peekServerBtn(provider))}</button>`
-          : `<button type="button" class="btn" id="switchBackUserBtn">${icon('eye')}${escapeHtml(dict.switchBackUserBtn)}</button>`
-      }
+      <button type="button" class="btn btn-primary" id="replySecureBtn">${icon('reply')}${escapeHtml(dict.replySecureBtn)}</button>
+      <button type="button" class="btn btn-ghost" id="peekStorageBtn">${icon('disk')}${escapeHtml(dict.peekStorageBtn)}</button>
     </div>`;
 
-  const replyBtn = document.getElementById('replySecureBtn');
-  if (replyBtn) replyBtn.addEventListener('click', () => openComposeModal(current));
-  const peekBtn = document.getElementById('peekServerBtn');
-  if (peekBtn) peekBtn.addEventListener('click', () => setView('bigtech'));
-  const backBtn = document.getElementById('switchBackUserBtn');
-  if (backBtn) backBtn.addEventListener('click', () => setView('user'));
+  document.getElementById('replySecureBtn').addEventListener('click', () => openComposeModal(current));
+  document.getElementById('peekStorageBtn').addEventListener('click', () => setView('storage'));
 }
 
 function setView(view) {
   state.view = view;
-  if (view === 'bigtech') trackEvent('demo_provider_view', true);
+  // Event name kept from the first design so funnel counts stay comparable (docs/09).
+  if (view === 'storage') trackEvent('demo_provider_view', true);
   document.querySelectorAll('#viewToggle .seg-btn').forEach((btn) => {
     const active = btn.getAttribute('data-view') === view;
     btn.classList.toggle('active', active);
@@ -735,15 +732,13 @@ function openComposeModal(replyTarget = null) {
 
     state.customSentByLang[state.lang].unshift({
       id: newId,
-      protected: true,
-      tier: peer ? 'e2ee' : 'tee',
+      tier: peer ? 'e2ee' : 'own',
       trustLabel: peer ? cm.sentTierE2ee : cm.sentTierTee,
       realFrom: `${cm.youLabel} → ${to}`,
       realTo: to,
       realSubject: subj,
       time: cm.sentNow,
-      opaqueFrom: 'self-7c21e0@in.zeromx.network',
-      opaqueSubject: `🔒 Thread #${hexToken(newId, 12)}`,
+      objKey: `own/01JE${hexToken(newId, 11).toUpperCase()}.zmx`,
       realBody: body,
       sealedBy: cm.sentSealedBy,
       padded: '4 KiB'
@@ -776,9 +771,7 @@ function openMobileGapModal() {
       <div class="phone-card is-bad">
         <strong>${escapeHtml(mm.badTitle)}</strong>
         <p>${escapeHtml(mm.badDesc)}</p>
-        <div class="notif">relay-3d7b12@in.zeromx.network
-🔒 Thread #a72f91c04e1b
-${gibberish('notif', 58)}</div>
+        <div class="notif">${gibberish('notif', 132)}</div>
       </div>
       <div class="phone-card">
         <strong>${escapeHtml(mm.goodTitle)}</strong>
@@ -1241,10 +1234,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => setLang(btn.getAttribute('data-lang')));
   });
 
-  document.querySelectorAll('#providerToggle .seg-btn').forEach((btn) => {
+  document.querySelectorAll('#storageToggle .seg-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
-      state.provider = btn.getAttribute('data-provider');
-      document.querySelectorAll('#providerToggle .seg-btn').forEach((b) => {
+      state.storage = btn.getAttribute('data-storage');
+      document.querySelectorAll('#storageToggle .seg-btn').forEach((b) => {
         b.classList.toggle('active', b === btn);
         b.setAttribute('aria-pressed', String(b === btn));
       });
